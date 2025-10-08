@@ -98,12 +98,6 @@ Light = {
     "_parent": Device,
 }
 
-bedroom_light = make(Light, "Bedtable Light", "Bedroom", 300, "off", 70)
-#print(light_description(bedroom_light))
-toggle_status(bedroom_light)
-print(get_power_consumption(bedroom_light))
-print(describe_device(bedroom_light))
-
 
 #SUBCLASS THERMOSTAT
 def thermostat_new(name, location, basepower, status, room_temperature, target_temperature):
@@ -128,9 +122,6 @@ Thermostat = {
     "_classname": "Thermostat"
 }
 
-bathroom_thermostat = make(Thermostat, "Towel Thermostat", "Bathroom", 1200, "on", 18, 24)
-connect(bathroom_thermostat, "10.10.10.4")
-#print(thermostat_description(bathroom_thermostat))
 
 #SUBCLASS CAMERA 
 def camera_new(name, location, basepower, status, resolution_factor):
@@ -159,5 +150,21 @@ Camera = {
     "_classname": "Camera"
 }
 
+
+#EXAMPLES
+bedroom_light = make(Light, "Bedtable Light", "Bedroom", 300, "off", 70)
+toggle_status(bedroom_light)
+print(get_power_consumption(bedroom_light))
+print(describe_device(bedroom_light))
+
 living_room_camera = make(Camera, "New RGB Camera", "Living Room", 500, "on", 8)
-#print(camera_description(living_room_camera))
+print(get_power_consumption(living_room_camera))
+print(describe_device(living_room_camera))
+
+bathroom_thermostat = make(Thermostat, "Towel Thermostat", "Bathroom", 1200, "on", 18, 24)
+connect(bathroom_thermostat, "10.10.10.4")
+print(get_power_consumption(bathroom_thermostat))
+print(describe_device(bathroom_thermostat))
+
+disconnect(bathroom_thermostat)
+print(describe_device(bathroom_thermostat))
