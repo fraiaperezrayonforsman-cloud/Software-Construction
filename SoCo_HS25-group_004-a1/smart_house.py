@@ -105,9 +105,39 @@ Thermostat = {
     "get_power_consumption": thermostat_consumption,
     "describe_device": thermostat_description,
     "_new": thermostat_new,
-    "_classname": "Thermostat",
+    "_classname": "Thermostat"
 }
 
 bathroom_thermostat = make(Thermostat, "Towel Thermostat", "Bathroom", 1200, "on", 18, 24)
 connect(bathroom_thermostat, "10.10.10.4")
 print(thermostat_description(bathroom_thermostat))
+
+#SUBCLASS CAMERA 
+def camera_new(name, location, basepower, status, resolution_factor):
+    therm_c = make(Connectable)
+    therm_d = make(Device, name, location, basepower, status)
+    return (therm_c | therm_d) | {
+            "resolution_factor": resolution_factor,
+            "_class": Camera
+    }
+
+def camera_consumption(self):
+    return self["basepower"] * self["resolution_factor"]
+
+def camera_description(self):
+    factor = "medium"
+    if self["resolution_factor"] < 5:
+        factor = "low"
+    if self["resolution_factor"] >= 10:
+        factor = "high"
+    return f"The {self["name"]} is located in the {self["location"]}, is currently {self["status"]}, and is a {factor} resolution sensor. {is_connected(self)}"
+
+Camera = {
+    "get_power_consumption": camera_consumption,
+    "describe_device": camera_description,
+    "_new": camera_new,
+    "_classname": "Camera"
+}
+
+living_room_camera = make(Camera, "New RGB Camera", "Living Room", 500, "on", 8)
+print(camera_description(living_room_camera))
