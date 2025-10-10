@@ -6,11 +6,11 @@ def toggle_status(self):
         self["status"] = "on"
     return self["status"]
 
-def device_new(name, location, basepower, status):
+def device_new(name, location, base_power, status):
     return {
         "name": name,
         "location": location,
-        "basepower": basepower,
+        "base_power": base_power,
         "status": status,
         "_class": Device
     }
@@ -47,7 +47,7 @@ def make(cls, *args):
 
 
 #PARENT CLASS CONNECTABLE
-def conntectable_new():
+def connectable_new():
     return {
         "connected": False,
         "ip": None
@@ -70,7 +70,7 @@ Connectable = {
     "connect": connect,
     "disconnect": disconnect,
     "is_connected": is_connected,
-    "_new": conntectable_new,
+    "_new": connectable_new,
     "_classname": "Connectable",
 }
 
@@ -79,13 +79,13 @@ Connectable = {
 def light_consumption(self):
     if self["status"] != "on":
         return 0
-    return round(self["basepower"] * (self["brightness"]/100))
+    return round(self["base_power"] * (self["brightness"]/100))
 
 def light_description(self):
     return f"The {self['name']} is located in the {self['location']}, is currently {self['status']} and is currently set to {self['brightness']}% brightness."
 
-def light_new(name, location, basepower, status, brightness):
-    return make(Device, name, location, basepower, status) | {
+def light_new(name, location, base_power, status, brightness):
+    return make(Device, name, location, base_power, status) | {
             "brightness": brightness,
             "_class": Light
     }
@@ -100,9 +100,9 @@ Light = {
 
 
 #SUBCLASS THERMOSTAT
-def thermostat_new(name, location, basepower, status, room_temperature, target_temperature):
+def thermostat_new(name, location, base_power, status, room_temperature, target_temperature):
     therm_c = make(Connectable)
-    therm_d = make(Device, name, location, basepower, status)
+    therm_d = make(Device, name, location, base_power, status)
     return (therm_c | therm_d) | {
             "room_temperature": room_temperature,
             "target_temperature": target_temperature,
@@ -112,7 +112,7 @@ def thermostat_new(name, location, basepower, status, room_temperature, target_t
 def thermostat_consumption(self):
     if self["status"] != "on":
         return 0
-    return self["basepower"] * abs(self["target_temperature"] - self["room_temperature"])
+    return self["base_power"] * abs(self["target_temperature"] - self["room_temperature"])
 
 def thermostat_description(self):
     return f"The {self['name']} is located in the {self['location']}, is currently {self['status']}, and is currently set to {self['target_temperature']} degrees Celsius in an {self['room_temperature']} degree room. {is_connected(self)}"
@@ -121,14 +121,20 @@ Thermostat = {
     "get_power_consumption": thermostat_consumption,
     "describe_device": thermostat_description,
     "_new": thermostat_new,
-    "_classname": "Thermostat"
+    "_classname": "Thermostat",
+    "_parent": [Device, Connectable]
 }
 
+def set_target_temperature(self, temperature):
+    self["target_temperature"] = temperature
+
+def get_target_temperature(self):
+    return self["target_temperature"]
 
 #SUBCLASS CAMERA 
-def camera_new(name, location, basepower, status, resolution_factor):
+def camera_new(name, location, base_power, status, resolution_factor):
     therm_c = make(Connectable)
-    therm_d = make(Device, name, location, basepower, status)
+    therm_d = make(Device, name, location, base_power, status)
     return (therm_c | therm_d) | {
             "resolution_factor": resolution_factor,
             "_class": Camera
@@ -137,7 +143,7 @@ def camera_new(name, location, basepower, status, resolution_factor):
 def camera_consumption(self):
     if self["status"] != "on":
         return 0
-    return self["basepower"] * self["resolution_factor"]
+    return self["base_power"] * self["resolution_factor"]
 
 def camera_description(self):
     factor = "medium"
@@ -151,7 +157,8 @@ Camera = {
     "get_power_consumption": camera_consumption,
     "describe_device": camera_description,
     "_new": camera_new,
-    "_classname": "Camera"
+    "_classname": "Camera",
+    "_parent": [Device, Connectable]
 }
 
 
@@ -170,3 +177,5 @@ for ex in examples:
 
 disconnect(bathroom_thermostat)
 print(call(bathroom_thermostat, "describe_device"))
+set_target_temperature(bathroom_thermostat, 30)
+print(get_target_temperature(bathroom_thermostat))
