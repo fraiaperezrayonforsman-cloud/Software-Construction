@@ -62,7 +62,7 @@ def disconnect(self):
 
 def is_connected(self):
     if self["connected"] == True:
-        return f"It is currently connected to server {self["ip"]}."
+        return f"It is currently connected to server {self['ip']}."
     else:
         return "It is currently disconnected."
 
@@ -82,7 +82,7 @@ def light_consumption(self):
     return round(self["basepower"] * (self["brightness"]/100))
 
 def light_description(self):
-    return f"The {self["name"]} is located in the {self["location"]}, is currently {self["status"]} and is currently set to {self["brightness"]}% brightness."
+    return f"The {self['name']} is located in the {self['location']}, is currently {self['status']} and is currently set to {self['brightness']}% brightness."
 
 def light_new(name, location, basepower, status, brightness):
     return make(Device, name, location, basepower, status) | {
@@ -110,10 +110,12 @@ def thermostat_new(name, location, basepower, status, room_temperature, target_t
     }
 
 def thermostat_consumption(self):
+    if self["status"] != "on":
+        return 0
     return self["basepower"] * abs(self["target_temperature"] - self["room_temperature"])
 
 def thermostat_description(self):
-    return f"The {self["name"]} is located in the {self["location"]}, is currently {self["status"]}, and is currently set to {self["target_temperature"]} degrees Celsius in an {self["room_temperature"]} degree room. {is_connected(self)}"
+    return f"The {self['name']} is located in the {self['location']}, is currently {self['status']}, and is currently set to {self['target_temperature']} degrees Celsius in an {self['room_temperature']} degree room. {is_connected(self)}"
 
 Thermostat = {
     "get_power_consumption": thermostat_consumption,
@@ -133,6 +135,8 @@ def camera_new(name, location, basepower, status, resolution_factor):
     }
 
 def camera_consumption(self):
+    if self["status"] != "on":
+        return 0
     return self["basepower"] * self["resolution_factor"]
 
 def camera_description(self):
@@ -141,7 +145,7 @@ def camera_description(self):
         factor = "low"
     if self["resolution_factor"] >= 10:
         factor = "high"
-    return f"The {self["name"]} is located in the {self["location"]}, is currently {self["status"]}, and is a {factor} resolution sensor. {is_connected(self)}"
+    return f"The {self['name']} is located in the {self['location']}, is currently {self['status']}, and is a {factor} resolution sensor. {is_connected(self)}"
 
 Camera = {
     "get_power_consumption": camera_consumption,
