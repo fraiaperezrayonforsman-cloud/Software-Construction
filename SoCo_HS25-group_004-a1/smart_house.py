@@ -27,10 +27,10 @@ def find(cls, method_name):
     raise NotImplementedError("method_name")
 
 def get_power_consumption(self):
-    return call(self, "get_power_consumption")
+    raise NotImplementedError("get_power_consumption")
 
 def describe_device(self):
-    return call(self, "describe_device")
+    raise NotImplementedError("describe_device")
 
 Device = {
     "get_power_consumption": get_power_consumption,
@@ -154,17 +154,15 @@ Camera = {
 #EXAMPLES
 bedroom_light = make(Light, "Bedtable Light", "Bedroom", 300, "off", 70)
 toggle_status(bedroom_light)
-print(get_power_consumption(bedroom_light))
-print(describe_device(bedroom_light))
+print(call(bedroom_light, "describe_device"))
 
 living_room_camera = make(Camera, "New RGB Camera", "Living Room", 500, "on", 8)
-print(get_power_consumption(living_room_camera))
-print(describe_device(living_room_camera))
+
 
 bathroom_thermostat = make(Thermostat, "Towel Thermostat", "Bathroom", 1200, "on", 18, 24)
 connect(bathroom_thermostat, "10.10.10.4")
-print(get_power_consumption(bathroom_thermostat))
-print(describe_device(bathroom_thermostat))
+
 
 disconnect(bathroom_thermostat)
-print(describe_device(bathroom_thermostat))
+
+
