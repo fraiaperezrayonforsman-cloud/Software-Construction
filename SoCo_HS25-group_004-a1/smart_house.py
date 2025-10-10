@@ -62,7 +62,7 @@ def disconnect(self):
 
 def is_connected(self):
     if self["connected"] == True:
-        return f"It is currently connected to server {self["ip"]}."
+        return f"It is currently connected to server {self['ip']}."
     else:
         return "It is currently disconnected."
 
