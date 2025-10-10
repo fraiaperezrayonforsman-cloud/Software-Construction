@@ -157,16 +157,16 @@ Camera = {
 
 #EXAMPLES
 bedroom_light = make(Light, "Bedtable Light", "Bedroom", 300, "off", 70)
-toggle_status(bedroom_light)
-print(call(bedroom_light, "describe_device"))
-
 living_room_camera = make(Camera, "New RGB Camera", "Living Room", 500, "on", 8)
-
-
 bathroom_thermostat = make(Thermostat, "Towel Thermostat", "Bathroom", 1200, "on", 18, 24)
-connect(bathroom_thermostat, "10.10.10.4")
 
+examples = [bedroom_light, living_room_camera, bathroom_thermostat]
+toggle_status(bedroom_light)
+connect(bathroom_thermostat, "10.10.10.4")
+for ex in examples:
+    n = ex["name"]
+    d_i = call(ex, "describe_device")
+    print(f"{n}: {d_i}")
 
 disconnect(bathroom_thermostat)
-
-
+print(call(bathroom_thermostat, "describe_device"))
