@@ -1,3 +1,5 @@
+#GLOBAL DEVICES LIST 
+all_devices = []
 #PARENT CLASS DEVICE
 def toggle_status(self):
     if self["status"] == "on":
@@ -15,9 +17,9 @@ def device_new(name, location, base_power, status):
         "_class": Device
     }
 
-def call(self, method_name, *args):
+def call(self, method_name, *args,**kwargs):
     method = find(self["_class"], method_name)
-    return method(self, *args)
+    return method(self, *args, **kwargs)
 
 def find(cls, method_name):
     while cls is not None:
@@ -43,14 +45,18 @@ Device = {
 
 #CREATE NEW 
 def make(cls, *args):
-    return cls["_new"](*args)
+    device = cls["_new"](*args)
+    if device ["_class"]["_classname"] in ["Light","Thermostat", "Camera"]:
+        all_devices.append(device)
+    return device  
 
 
 #PARENT CLASS CONNECTABLE
 def connectable_new():
     return {
         "connected": False,
-        "ip": None
+        "ip": None,
+        "_class": Connectable,
     }
 
 def connect(self, ip):
@@ -73,7 +79,6 @@ Connectable = {
     "_new": connectable_new,
     "_classname": "Connectable",
 }
-
 
 #SUBCLASS LIGHT
 def light_consumption(self):
@@ -162,6 +167,62 @@ Camera = {
 }
 
 
+#SMART_HOUSE_FUNCTIONS
+def calculate_total_power_consumption(self,search_type = None, search_room = None):
+    total_consumption = 0
+    for device in all_devices:
+        if device['location'] != search_room and search_room is not None:
+            continue
+        if device["_class"]["_classname"] != search_type and search_type is not None:
+            continue
+        total_consumption += call(device,"get_power_consumption")
+    return total_consumption
+
+def get_all_connected_devices(self,ip = None):
+    power_consumption = 0
+    descriptions = []
+    for device in all_devices:
+        if device["_class"]["_classname"] in ["Light"]:
+            continue
+        if device["connected"] == False:
+            continue
+        if device['status'] == 'off':
+            continue 
+        if ip is not None and device["ip"] != ip:
+            continue
+        power_consumption += call(device, 'get_power_consumption')
+        desc = call(device, 'describe_device')
+        descriptions.append(desc)
+    return power_consumption,descriptions
+
+def get_all_device_description(self,search_type = None, search_room = None):
+    descriptions = []
+    for device in all_devices:
+        if search_room is not None and device["location"] != search_room:
+            continue
+        if search_type is not None and device["_class"]["_classname"] != search_type:
+            continue
+        desc = call(device, "describe_device")
+        descriptions.append(desc)
+    return descriptions
+
+#SMARTHOUSE 
+def SmartHouseManagement_new(name,search_type = None,search_name = None):
+    return {
+        "name": name,
+        "_class": SmartHouseManagement,
+        "search_type":search_type,
+        "search_name": search_name
+    }
+
+SmartHouseManagement = {
+    "_classname": "SmartHouseManagement",
+    "calculate_total_power_consumption": calculate_total_power_consumption,
+    "get_all_device_description" : get_all_device_description,
+    "get_all_connected_devices" : get_all_connected_devices,
+    "_new": SmartHouseManagement_new
+}
+
 #EXAMPLES
 bedroom_light = make(Light, "Bedtable Light", "Bedroom", 300, "off", 70)
 living_room_camera = make(Camera, "New RGB Camera", "Living Room", 500, "on", 8)
@@ -179,3 +240,35 @@ disconnect(bathroom_thermostat)
 print(call(bathroom_thermostat, "describe_device"))
 set_target_temperature(bathroom_thermostat, 30)
 print(get_target_temperature(bathroom_thermostat))
+
+#SMART_HOUSE_TESTING
+smart_house = make(SmartHouseManagement, "Alexa", "Bedroom")
+print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom"))
+
+#MORE_DEVICES
+bedroom_thermostat = make(Thermostat, "Bed Thermostat", "Bedroom", 800, "on", 20,25)
+bedroom_camera = make(Camera,"Bed Camera","Bedroom",500,"on", 10 )
+
+#TURNING_DEVICES_ON_AND_OFF
+print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom"))
+toggle_status(bedroom_camera)
+toggle_status(bedroom_thermostat)
+print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom"))
+
+#CHANGING_TEMPERATURE
+toggle_status(bedroom_thermostat)
+print(call(smart_house,"get_all_device_description", search_room = "Bedroom", search_type = "Thermostat"))
+print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom"))
+set_target_temperature(bedroom_thermostat, 30)
+print(call(smart_house,"get_all_device_description", search_room = "Bedroom", search_type = "Thermostat"))
+print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom", search_type = "Thermostat"))
+
+#TEST_CONNECTED_DEVICES
+connect(bedroom_thermostat,"10.10.10.4")
+connect(bathroom_thermostat,"10.10.10.4")
+connect(living_room_camera,"11.10.10.4")
+
+#SHOW_DEVICES_CONNECTED_TO_ADDRESS
+print(call(smart_house,"get_all_connected_devices","10.10.10.4"))
+#SHOW_DEVICES_CONNECTED_TO_ANY_ADDRESS
+print(call(smart_house,"get_all_connected_devices"))
