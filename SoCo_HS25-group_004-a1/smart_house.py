@@ -207,12 +207,12 @@ def get_all_device_description(self,search_type = None, search_room = None):
     return descriptions
 
 #SMARTHOUSE 
-def SmartHouseManagement_new(name,search_type = None,search_name = None):
+def SmartHouseManagement_new(name,search_type = None,search_room = None):
     return {
         "name": name,
         "_class": SmartHouseManagement,
         "search_type":search_type,
-        "search_name": search_name
+        "search_name": search_room
     }
 
 SmartHouseManagement = {
@@ -242,7 +242,7 @@ set_target_temperature(bathroom_thermostat, 30)
 print(get_target_temperature(bathroom_thermostat))
 
 #SMART_HOUSE_TESTING
-smart_house = make(SmartHouseManagement, "Alexa", "Bedroom")
+smart_house = make(SmartHouseManagement, "Alexa")
 print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom"))
 
 #MORE_DEVICES
