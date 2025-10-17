@@ -109,14 +109,14 @@ Light = {
 
 
 #SUBCLASS THERMOSTAT
-def thermostat_new(name, location, base_power, status, room_temperature, target_temperature):
-    therm_c = make(Connectable)
-    therm_d = make(Device, name, location, base_power, status)
-    return (therm_c | therm_d) | {
+def thermostat_new(name, location, base_power, status, room_temperature, target_temperature, connected = False, ip = None):
+    thermostat = make(Connectable, connected, ip) | make(Device, name, location, base_power, status) | {
             "room_temperature": room_temperature,
             "target_temperature": target_temperature,
             "_class": Thermostat
     }
+    all_devices.append(thermostat)
+    return thermostat
 
 def thermostat_consumption(self):
     if self["status"] != "on":
