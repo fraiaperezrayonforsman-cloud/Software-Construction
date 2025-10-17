@@ -22,11 +22,17 @@ def call(self, method_name, *args,**kwargs):
     return method(self, *args, **kwargs)
 
 def find(cls, method_name):
-    while cls is not None:
-        if method_name in cls:
-            return cls[method_name]
-        cls = cls["_parent"]
-    raise NotImplementedError("method_name")
+    if method_name in cls:
+        return cls[method_name]
+    for parent in cls.get("_parent", []):
+        if isinstance(parent, dict):
+            try:
+                method = find(parent, method_name)
+                if method:
+                    return method
+            except NotImplementedError:
+                continue
+    raise NotImplementedError("method not found")
 
 def get_power_consumption(self):
     raise NotImplementedError("get_power_consumption")
