@@ -141,13 +141,13 @@ def get_target_temperature(self):
     return self["target_temperature"]
 
 #SUBCLASS CAMERA 
-def camera_new(name, location, base_power, status, resolution_factor):
-    therm_c = make(Connectable)
-    therm_d = make(Device, name, location, base_power, status)
-    return (therm_c | therm_d) | {
+def camera_new(name, location, base_power, status, resolution_factor, connected = False, ip = None):
+    camera = make(Connectable, connected, ip) | make(Device, name, location, base_power, status) | {
             "resolution_factor": resolution_factor,
             "_class": Camera
     }
+    all_devices.append(camera)
+    return camera
 
 def camera_consumption(self):
     if self["status"] != "on":
