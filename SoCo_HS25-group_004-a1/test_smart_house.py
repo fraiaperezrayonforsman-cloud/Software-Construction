@@ -1,4 +1,4 @@
-import smart_house_gp as sh
+import smart_house as sh
 import sys
 import time
 
