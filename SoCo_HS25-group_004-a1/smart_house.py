@@ -56,7 +56,7 @@ def make(cls, *args):
 
 
 #PARENT CLASS CONNECTABLE
-def connectable_new():
+def connectable_new(connected = False, ip = None):
     return {
         "connected": False,
         "ip": None,
