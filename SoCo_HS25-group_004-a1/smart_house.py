@@ -52,8 +52,6 @@ Device = {
 #CREATE NEW 
 def make(cls, *args):
     device = cls["_new"](*args)
-    if device ["_class"]["_classname"] in ["Light","Thermostat", "Camera"]:
-        all_devices.append(device)
     return device  
 
 
