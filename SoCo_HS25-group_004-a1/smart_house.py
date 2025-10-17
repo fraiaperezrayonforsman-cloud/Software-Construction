@@ -94,10 +94,12 @@ def light_description(self):
     return f"The {self['name']} is located in the {self['location']}, is currently {self['status']} and is currently set to {self['brightness']}% brightness."
 
 def light_new(name, location, base_power, status, brightness):
-    return make(Device, name, location, base_power, status) | {
+    light = make(Device, name, location, base_power, status) | {
             "brightness": brightness,
             "_class": Light
     }
+    all_devices.append(light)
+    return light
 
 Light = {
     "get_power_consumption": light_consumption,
