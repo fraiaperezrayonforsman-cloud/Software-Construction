@@ -22,11 +22,17 @@ def call(self, method_name, *args,**kwargs):
     return method(self, *args, **kwargs)
 
 def find(cls, method_name):
-    while cls is not None:
-        if method_name in cls:
-            return cls[method_name]
-        cls = cls["_parent"]
-    raise NotImplementedError("method_name")
+    if method_name in cls:
+        return cls[method_name]
+    for parent in cls.get("_parent", []):
+        if isinstance(parent, dict):
+            try:
+                method = find(parent, method_name)
+                if method:
+                    return method
+            except NotImplementedError:
+                continue
+    raise NotImplementedError("method not found")
 
 def get_power_consumption(self):
     raise NotImplementedError("get_power_consumption")
@@ -46,13 +52,11 @@ Device = {
 #CREATE NEW 
 def make(cls, *args):
     device = cls["_new"](*args)
-    if device ["_class"]["_classname"] in ["Light","Thermostat", "Camera"]:
-        all_devices.append(device)
     return device  
 
 
 #PARENT CLASS CONNECTABLE
-def connectable_new():
+def connectable_new(connected = False, ip = None):
     return {
         "connected": False,
         "ip": None,
@@ -90,10 +94,12 @@ def light_description(self):
     return f"The {self['name']} is located in the {self['location']}, is currently {self['status']} and is currently set to {self['brightness']}% brightness."
 
 def light_new(name, location, base_power, status, brightness):
-    return make(Device, name, location, base_power, status) | {
+    light = make(Device, name, location, base_power, status) | {
             "brightness": brightness,
             "_class": Light
     }
+    all_devices.append(light)
+    return light
 
 Light = {
     "get_power_consumption": light_consumption,
@@ -105,14 +111,14 @@ Light = {
 
 
 #SUBCLASS THERMOSTAT
-def thermostat_new(name, location, base_power, status, room_temperature, target_temperature):
-    therm_c = make(Connectable)
-    therm_d = make(Device, name, location, base_power, status)
-    return (therm_c | therm_d) | {
+def thermostat_new(name, location, base_power, status, room_temperature, target_temperature, connected = False, ip = None):
+    thermostat = make(Connectable, connected, ip) | make(Device, name, location, base_power, status) | {
             "room_temperature": room_temperature,
             "target_temperature": target_temperature,
             "_class": Thermostat
     }
+    all_devices.append(thermostat)
+    return thermostat
 
 def thermostat_consumption(self):
     if self["status"] != "on":
@@ -137,13 +143,13 @@ def get_target_temperature(self):
     return self["target_temperature"]
 
 #SUBCLASS CAMERA 
-def camera_new(name, location, base_power, status, resolution_factor):
-    therm_c = make(Connectable)
-    therm_d = make(Device, name, location, base_power, status)
-    return (therm_c | therm_d) | {
+def camera_new(name, location, base_power, status, resolution_factor, connected = False, ip = None):
+    camera = make(Connectable, connected, ip) | make(Device, name, location, base_power, status) | {
             "resolution_factor": resolution_factor,
             "_class": Camera
     }
+    all_devices.append(camera)
+    return camera
 
 def camera_consumption(self):
     if self["status"] != "on":
