@@ -35,7 +35,7 @@ Testing of Smart House System:
 Three test functions are conducted. All test functions are generalizable to the three subclasses Light, Thermostat and Camera. 
 
 1. The first test tests the correct base structure and storage of new device instances. We considered this is a 
-crucial aspect to test for the correct execution of the rest of the code. To do this we assert that each new instances
+crucial aspect to test, for the correct execution of the rest of the code. To do this we assert that each new instances
 include all the minimal characteristics of a device. Furthermore, we assert that each new instance is being added 
 correctly to the list all_devices. If instances weren't being stored correctly, all smarthouse management functions would fail.
 
