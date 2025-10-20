@@ -173,7 +173,7 @@ Camera = {
 }
 
 
-#SMART_HOUSE_FUNCTIONS
+#SMART HOUSE FUNCTIONS
 def calculate_total_power_consumption(self,search_type = None, search_room = None):
     total_consumption = 0
     for device in all_devices:
@@ -212,13 +212,13 @@ def get_all_device_description(self,search_type = None, search_room = None):
         descriptions.append(desc)
     return descriptions
 
-#SMARTHOUSE 
+#SMART HOUSE 
 def SmartHouseManagement_new(name,search_type = None,search_room = None):
     return {
         "name": name,
         "_class": SmartHouseManagement,
         "search_type":search_type,
-        "search_name": search_room
+        "search_room": search_room
     }
 
 SmartHouseManagement = {
@@ -247,34 +247,43 @@ print(call(bathroom_thermostat, "describe_device"))
 set_target_temperature(bathroom_thermostat, 30)
 print(get_target_temperature(bathroom_thermostat))
 
-#SMART_HOUSE_TESTING
+#SMART HOUSE INSTANCE
 smart_house = make(SmartHouseManagement, "Alexa")
-print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom"))
 
-#MORE_DEVICES
+#CREATING SOME DEVICES EXAMPLES 
 bedroom_thermostat = make(Thermostat, "Bed Thermostat", "Bedroom", 800, "on", 20,25)
 bedroom_camera = make(Camera,"Bed Camera","Bedroom",500,"on", 10 )
+kitchen_camera = make(Camera,"Kitchen Camera", "Kitchen",200, "on",20 )
 
-#TURNING_DEVICES_ON_AND_OFF
-print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom"))
+print('--SMART HOUSE MANAGEMENT TESTING--')
+print('--TURNING DEVICES ON AND OFF--')
+#TURNING DEVICES ON AND OFF
+print(f'Total power consumption for devices placed in Bedroom is: \n{call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom")}')
 toggle_status(bedroom_camera)
 toggle_status(bedroom_thermostat)
-print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom"))
+toggle_status(bedroom_light)
+print(f'Total power consumption for devices placed in Bedroom after turning all of them off is: \n{call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom")}')
 
-#CHANGING_TEMPERATURE
+print('----------------------------------')
+print('--CHANGING TEMPERATURE--')
+
+#CHANGING TEMPERATURE
 toggle_status(bedroom_thermostat)
-print(call(smart_house,"get_all_device_description", search_room = "Bedroom", search_type = "Thermostat"))
-print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom"))
+print(f'Description of the thermostat placed in Bedroom before changing its temperature: \n{call(smart_house,"get_all_device_description", search_room = "Bedroom", search_type = "Thermostat")}')
+print(f'Power consumption of thermostat placed in Bedroom before changing its temperature:\n{call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom", search_type = "Thermostat")}')
 set_target_temperature(bedroom_thermostat, 30)
-print(call(smart_house,"get_all_device_description", search_room = "Bedroom", search_type = "Thermostat"))
-print(call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom", search_type = "Thermostat"))
+print(f'Description of the thermostat placed in Bedroom after changing its temperature: \n{call(smart_house,"get_all_device_description", search_room = "Bedroom", search_type = "Thermostat")}')
+print(f'Power consumption of thermostat placed in Bedroom after changing its temperature:\n{call(smart_house,"calculate_total_power_consumption", search_room = "Bedroom", search_type = "Thermostat")}')
 
-#TEST_CONNECTED_DEVICES
+print('----------------------------------')
+print('--VIEWING CONNECTED DEVICES--')
+
+#CONNECT SOME DEVICES
 connect(bedroom_thermostat,"10.10.10.4")
 connect(bathroom_thermostat,"10.10.10.4")
 connect(living_room_camera,"11.10.10.4")
 
-#SHOW_DEVICES_CONNECTED_TO_ADDRESS
-print(call(smart_house,"get_all_connected_devices","10.10.10.4"))
-#SHOW_DEVICES_CONNECTED_TO_ANY_ADDRESS
-print(call(smart_house,"get_all_connected_devices"))
+#SHOW DEVICES CONNECTED TO SPECIFIC ADDRESS
+print(f'Power consumption and descriptions of the devices connected to a given address:\n{call(smart_house,"get_all_connected_devices","10.10.10.4")}')
+#SHOW DEVICES CONNECTED TO ANY ADDRESS
+print(f'Power consumption and descriptions of the devices connected to any address:\n{call(smart_house,"get_all_connected_devices")}')
