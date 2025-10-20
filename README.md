@@ -60,5 +60,5 @@ Julie Truc Dao
 
 Fraia Pérez-Rayón
 
-Natalia Piegat
+Natalia Piegat (missbo-cyber is my github account I connected with gitlab, I was using my gitlab account but with my merge request my github username is shown)
 
