@@ -30,7 +30,6 @@ def test_structure(cls, cls_name, *args):
 
 #check whether total power consumption is being calculated correctly
 def test_total_power_consumption(cls, cls_name, *args, search_type = None, search_room = None):
-    sh.all_devices.clear()
 
     device = cls["_new"](*args)
     sh.all_devices.append(device)
