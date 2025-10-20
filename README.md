@@ -45,7 +45,7 @@ being stored correctly in new instances. This attributes are necessary for all p
 
 3. By testing connectivty, besides testing the correct functioning of the connect function, we also test whether
 the make and find functions work as expected for subclasses with two parent classes, i.e. Thermostat and Camera. In other words, whether 
-attributes and functions in the Connect class are accessible by their child classes.
+attributes and functions in the Connect class are accessible by their child classes and whether they are inheriting the attributes correctly.
 
 Since the test functions are generalizable we test all three subclasses through all three tests, thus assuring robustness across subclasses. 
 The subclass Light is also tested in the 3rd test expecting the it to fail, given that it doesn't inherit from the Connect parent class. 
