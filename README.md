@@ -67,7 +67,9 @@ Additionally, we add a --select command to be able to filter tests by subclasses
 
 ## Prompts Used for Troubleshooting
 My --select argument is not selecting all new instances of the selected subclass. Give me some ideas on what could have gone wrong.
+
 SyntaxError : f-string: unmatched '[', show me some examples on how to fix this?
+
 I'm getting a Key Error and my subclasses with two parents are not inheriting from the second parent Class. How would you address this problem? 
 
 ## Authors 
