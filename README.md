@@ -44,9 +44,9 @@ Additionally, we can also get device descriptions for them or view  power consum
 Testing of Smart House System:
 Three test functions are conducted. All test functions are generalizable to the three subclasses Light, Thermostat and Camera. 
 
-1. The first test tests the correct base structure and storage of new device instances. We considered this is a 
-crucial aspect to test, for the correct execution of the rest of the code. To do this we assert that each new instances
-include all the minimal characteristics of a device. Furthermore, we assert that each new instance is being added 
+1. The first test tests the correct base structure and storage of new device instances. We considered this to be 
+crucial aspect to test for, given that, the rest of the code depends on it. To do this we assert that each new instance
+includes all the minimal characteristics of a device. Furthermore, we assert that each new instance is being added 
 correctly to the list all_devices. If instances weren't being stored correctly, all smarthouse management functions would fail.
 
 2. By testing total power consumption, besides testing whether total consumption is being calculated correctly or not (with or without room and type conditions)
@@ -58,12 +58,17 @@ the make and find functions work as expected for subclasses with two parent clas
 attributes and functions in the Connect class are accessible by their child classes and whether they are inheriting the attributes correctly.
 
 Since the test functions are generalizable we test all three subclasses through all three tests, thus assuring robustness across subclasses. 
-The subclass Light is also tested in the 3rd test expecting the it to fail, given that it doesn't inherit from the Connect parent class. 
+The subclass Light is also tested in the 3rd test expecting it to fail, given that it doesn't inherit from the Connect parent class. 
 
 Furthermore, we make sure that only test named global variables are called by adding a callable condition to the run_test function. Only test named functions are called
 and other test named variables are left out. 
 
 Additionally, we add a --select command to be able to filter tests by subclasses. 
+
+## Prompts Used for Troubleshooting
+My --select argument is not selecting all new instances of the selected subclass. Give me some ideas on what could have gone wrong.
+SyntaxError : f-string: unmatched '[', show me some examples on how to fix this?
+I'm getting a Key Error and my subclasses with two parents are not inheriting from the second parent Class. How would you address this problem? 
 
 ## Authors 
 Julie Truc Dao
