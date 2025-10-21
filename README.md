@@ -17,6 +17,16 @@ In the table below, we described the specific methods for each class:
 
 Each class was implemented using Python dictionaries. 
 
+## Create Classes and Objects for the smart house
+
+The classes were built using dictionaries. 
+
+In the parent class Device, get_power_consumption and describe_device are not implemented and raise a NotImplementedError, since they are abstract -> they must be defined by each subclass. toggle_status is implemented in Device and shared by all subclasses. 
+
+Each subclass has its own implementation for power consumption and description based on their specific attributes. To create a new object, we use a constructor _new together with a make() function and used the course book as a guide. 
+
+For multiple inheritance in Thermostat and Camera, we use a merge of make(Connectable) and make(Device,...). This gives the objects the attributes and methods of both parents. The Thermostat subclass also includes set_target_temperature and get_target_temperature to adjust and read the target temperature. 
+
 ## Smart House Management
 
 In order to track all devices and manage them we employed a global list. Every time when a new device is created, its instance is appended to this list.
