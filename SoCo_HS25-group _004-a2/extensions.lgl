@@ -1,9 +1,19 @@
 ["seq",
 ["set", "n", 5],
-        [   "until",
-            ["set", "n", ["subtrahieren", ["get", "n"], 2]],
-            ["less_than", ["get", "n"], 2]
+["set", "i", 0],
+["set", "s", 0],
+["set","m",4],
+    [
+        "until",
+        ["set", "n", ["subtrahieren", ["get", "n"], 2]],
+        ["less_than", ["get", "n"], 2]
+    ],
+    [   "until",
+        [
+            "seq",
+            ["set", "i", ["addieren", ["get", "i"], 1]],
+            ["set", "s", ["addieren", ["get", "s"], ["get", "i"]]]
         ],
+        ["equal", ["get", "i"], ["get", "m"]]]
 ]
-
 

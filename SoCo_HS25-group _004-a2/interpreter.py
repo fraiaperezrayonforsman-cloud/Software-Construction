@@ -166,9 +166,11 @@ def do_until(args,env):
     while(True):
         print(env) #for checking if it works 
         if do(cond,env) is True:
+            print("End of the function")
             break
         else:
-            do(body,env)
+            result = do(body,env)
+    return result 
 
 def do_call(args,envs):
     assert len(args) >= 1
