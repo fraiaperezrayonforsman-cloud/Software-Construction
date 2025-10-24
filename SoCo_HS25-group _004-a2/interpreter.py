@@ -159,6 +159,17 @@ def do_func(args, env):
     body = args[1]
     return ["func",params,body]
 
+def do_until(args,env):
+    assert len(args) == 2
+    cond = args[1]
+    body = args[0]
+    while(True):
+        print(env) #for checking if it works 
+        if do(cond,env) is True:
+            break
+        else:
+            do(body,env)
+
 def do_call(args,envs):
     assert len(args) >= 1
     assert isinstance(args[0],str)

@@ -1,0 +1,9 @@
+["seq",
+["set", "n", 5],
+        [   "until",
+            ["set", "n", ["subtrahieren", ["get", "n"], 2]],
+            ["less_than", ["get", "n"], 2]
+        ],
+]
+
+
