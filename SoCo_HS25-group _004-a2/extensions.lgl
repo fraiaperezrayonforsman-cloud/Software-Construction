@@ -3,10 +3,12 @@
 ["set", "i", 0],
 ["set", "s", 0],
 ["set","m",4],
+["set","factorial",1],
+["set","a",4],
     [
         "until",
         ["set", "n", ["subtrahieren", ["get", "n"], 2]],
-        ["less_than", ["get", "n"], 2]
+        ["greater_than_or_equal", ["get", "n"], 2]
     ],
     [   "until",
         [
@@ -14,6 +16,19 @@
             ["set", "i", ["addieren", ["get", "i"], 1]],
             ["set", "s", ["addieren", ["get", "s"], ["get", "i"]]]
         ],
-        ["equal", ["get", "i"], ["get", "m"]]]
+        ["less_than", ["get", "i"], ["get", "m"]]],
+    [
+         "until",
+    [
+        "seq",
+        ["set", "factorial", ["multiplizieren", ["get", "factorial"], ["get", "a"]]],
+        ["set", "a", ["subtrahieren", ["get", "a"], 1]]
+    ],
+    ["greater_than_or_equal", ["get", "a"], 1]
+    ]
+   
 ]
+
+
+
 

@@ -163,13 +163,11 @@ def do_until(args,env):
     assert len(args) == 2
     cond = args[1]
     body = args[0]
-    while(True):
+    result = None
+    while(do(cond,env)):
         print(env) #for checking if it works 
-        if do(cond,env) is True:
-            print("End of the function")
-            break
-        else:
-            result = do(body,env)
+        result = do(body,env)
+    print("The end of the loop")
     return result 
 
 def do_call(args,envs):
