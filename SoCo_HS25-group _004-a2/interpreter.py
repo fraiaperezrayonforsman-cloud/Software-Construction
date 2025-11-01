@@ -149,7 +149,7 @@ def do_not(args,env):
         return 1
     
 def do_print(args, env):
-    args = [do(env, a) for a in args]
+    args = [do(a, env) for a in args] #swapped a and env args of the do func
     print(*args)
     return None
 
@@ -191,6 +191,86 @@ def do_call(args,envs):
     envs.pop()
 
     return result
+
+#Part 2------------------------------------------------------------
+def do_array(args, envs):
+    assert len(args) == 1
+    size = do(args[0], envs)
+    assert isinstance(size, int) and size >= 0
+    return[0] * size
+
+def do_value_at(args, envs):
+    assert len(args) == 2
+    array = env_get(args[0], envs)
+    i = do(args[1], envs)
+    assert isinstance(array, list), "variable is not an array"
+    assert len(array) > 0, f"array empty"
+    assert 0<= i < len(array), f"i is out of bounds" 
+    return array[i]
+
+def do_set_value(args, envs):
+    assert len(args) == 3
+    array = env_get(args[0], envs)
+    i = do(args[1], envs)
+    value = do(args[2], envs)
+    assert isinstance(array, list), f"variable is not an array"
+    if len(array) == 0:
+        assert i == 0, f"cannot set value in index {i}, since array is empty"
+        array.append(value)
+    elif i == len(array):
+        array.append(value)
+    assert 0 <= i < len(array), f"index out of bounds"
+    array[i] = value
+    env_set(args[0], array, envs)
+    return value
+
+def do_array_size(args, envs):
+    array = env_get(args[0], envs)
+    assert isinstance(array, list), f"variable is not an array"
+    return len(array)
+
+def do_array_concat(args, envs):
+    assert len(args)==2
+    array_1 = env_get(args[0], envs)
+    array_2 = env_get(args[1], envs)
+    assert isinstance(array_1, list) and isinstance(array_2, list), f"both or one of the variables are not arrays"
+    array_comb = array_1 + array_2
+    return array_comb
+
+def do_new_set(args, envs):
+    return set()
+
+def do_insert_set(args, envs):
+    assert len(args) == 2
+    s = env_get(args[0], envs)
+    value = do(args[1], envs)
+    assert isinstance(s, set), f"not a set"
+    assert value not in s, f"value already in set, thus it cannot be inserted"
+    s.add(value)
+    env_set(args[0], s, envs)
+    return value
+
+def do_exist(args, envs):
+    assert len(args) == 2
+    s = env_get(args[0], envs)
+    value = do(args[1], envs)
+    exists = value in s
+    return exists
+
+def do_merge_set(args, envs):
+    assert len(args) == 2
+    s1 = env_get(args[0], envs)
+    s2 = env_get(args[1], envs)
+    assert isinstance(s1, set) and isinstance(s2, set), f"both or one of the variables is not a set"
+    union = s1.union(s2)
+    env_set(args[0], union, envs)
+    return union
+
+def do_string(args, envs):
+    assert len(args)==1
+    return args[0]
+
+#------------------------------------------------------------------
 
 # {"addieren":do_addieren,
 #  "absolutewert":do_absolutewert, 
