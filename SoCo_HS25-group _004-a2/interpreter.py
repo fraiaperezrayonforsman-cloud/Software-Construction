@@ -316,6 +316,29 @@ def do_reduce(args, envs):
         envs.pop()
 
     return result
+
+def do_filter(args, envs):
+    assert len(args) == 2
+    array = env_get(args[0], envs)    #[1,2,3,4,15,22,34]
+    func = env_get(args[1], envs)     #["func", ["n"], ["greater_than", "n", 10]]  
+    
+    assert isinstance(array, list), "first argument must be an array"
+    assert isinstance(func, list) and func[0] == "func", "second argument must be a function"
+    
+    params = func[1]        #["n"]       
+    body = func[2]          #["greater_than", "n", 10]
+    
+    res = []
+    
+    for element in array:
+        local_env = {params[0]: element}    #{n: 1}
+        envs.append(local_env)              #[...,{n: 1}]
+        result = do(body,envs)              #False
+        envs.pop()                          #[...]
+        if result == True:      
+            res.append(element)
+    
+    return res                              #[15,22,34]
 #------------------------------------------------------------------
 
 # {"addieren":do_addieren,
