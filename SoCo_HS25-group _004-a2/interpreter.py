@@ -294,7 +294,7 @@ def do_map(args, envs):
         envs.pop()                          #[...]
         res.append(result)                  #[1,4]
     
-    return result
+    return res
 
 def do_reduce(args, envs):
     assert len(args) == 2
