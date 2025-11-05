@@ -270,6 +270,32 @@ def do_string(args, envs):
     assert len(args)==1
     return args[0]
 
+#Part 3------------------------------------------------------------
+def do_map(args, envs):
+    assert len(args) == 2
+    array_name = args[0]        #"A"
+    func_name = args[1]         #"sq_func"
+    
+    array = env_get(array_name, envs)   #[1,2,3,4]
+    func = env_get(func_name, envs)     #["func", ["n"], ["mult", "n", "n"]]  
+    
+    assert isinstance(array, list), "first argument must be an array"
+    assert isinstance(func, list) and func[0] == "func", "second argument must be a function"
+    
+    params = func[1]        #["n"]
+    body = func[2]          #["mult", "n", "n"]
+    
+    res = []
+    
+    for element in array:
+        local_env = {params[0]: element}    #{"n": 2}
+        envs.append(local_env)              #[..., {"n": 2}]
+        result = do(body, envs)             #4
+        envs.pop()                          #[...]
+        res.append(result)                  #[1,4]
+    
+    return result
+
 #------------------------------------------------------------------
 
 # {"addieren":do_addieren,
