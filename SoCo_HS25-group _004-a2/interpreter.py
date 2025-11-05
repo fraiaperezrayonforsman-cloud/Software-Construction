@@ -296,6 +296,26 @@ def do_map(args, envs):
     
     return result
 
+def do_reduce(args, envs):
+    assert len(args) == 2
+    array = env_get(args[0], envs)   
+    func = env_get(args[1], envs)     
+    
+    assert isinstance(array, list), "first argument must be an array"
+    assert isinstance(func, list) and func[0] == "func", "second argument must be a function"
+    
+    params = func[1]        
+    body = func[2]          
+    
+    result = array[0] 
+
+    for element in array[1:]:
+        local_env = {params[0]: result, params[1]: element} 
+        envs.append(local_env)
+        result = do(body, envs)
+        envs.pop()
+
+    return result
 #------------------------------------------------------------------
 
 # {"addieren":do_addieren,
