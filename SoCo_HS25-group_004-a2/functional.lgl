@@ -1,9 +1,30 @@
-["set", "sq_func", ["func", ["n"], ["multiplizieren", "n", "n"]]]
-["set", "A", ["array", 4]]                   
-["set_value", "A", 0, 1]                     
-["set_value", "A", 1, 2]                     
-["set_value", "A", 2, 3]                     
-["set_value", "A", 3, 4]                     
-["set", "B", ["map", "A", "sq_func"]]
+["seq",
 
+    ["set", "sq_func", 
+        ["func", ["n"],
+            ["multiplizieren", ["get","n"], ["get","n"]]
+        ]
+    ],
+    ["set", "A", ["array", 4]],                   
+    ["set_value", "A", 0, 1],                     
+    ["set_value", "A", 1, 2],                     
+    ["set_value", "A", 2, 3],                     
+    ["set_value", "A", 3, 4],                     
+    ["set", "Map", ["map", "A", "sq_func"]],    
+    
+    ["set", "Reduce", ["reduce","A","addieren"]],
+
+    ["set", "larger_ten_func", 
+        ["func", ["n"], ["greater_than",["get","n"],10]]
+    ],
+    ["set", "B", ["array", 7]],                   
+    ["set_value", "B", 0, 1],                     
+    ["set_value", "B", 1, 2],                     
+    ["set_value", "B", 2, 3],                     
+    ["set_value", "B", 3, 4],  
+    ["set_value", "B", 4, 15],
+    ["set_value", "B", 5, 22],
+    ["set_value", "B", 6, 34],             
+    ["set", "Filter", ["filter", "B", "larger_ten_func"]] 
+]
 

@@ -298,24 +298,39 @@ def do_map(args, envs):
 
 def do_reduce(args, envs):
     assert len(args) == 2
-    array = env_get(args[0], envs)   
-    func = env_get(args[1], envs)     
-    
-    assert isinstance(array, list), "first argument must be an array"
-    assert isinstance(func, list) and func[0] == "func", "second argument must be a function"
-    
-    params = func[1]        
-    body = func[2]          
-    
-    result = array[0] 
+    array_name = args[0]
+    func_name = args[1]
+    array = env_get(array_name, envs)
+    assert isinstance(array, list), "first argument must be array"
 
-    for element in array[1:]:
-        local_env = {params[0]: result, params[1]: element} 
-        envs.append(local_env)
-        result = do(body, envs)
-        envs.pop()
+    func = None
+    if isinstance(func_name, str):
+        try:
+            func = env_get(func_name, envs)  
+        except AssertionError:
+            func = None
 
-    return result
+    if isinstance(func, list) and func != None and func[0] == "func":
+        params = func[1]        
+        body = func[2]          
+        
+        result = array[0] 
+
+        for element in array[1:]:
+            local_env = {params[0]: result, params[1]: element} 
+            envs.append(local_env)
+            result = do(body, envs)
+            envs.pop()
+
+        return result
+    
+    if func_name in OPS:
+        result = array[0]
+        for element in array[1:]:
+            result = do([func_name, result, element], envs)
+        return result
+    
+    raise AssertionError("second argument must be a defined function or a built-in operation")
 
 def do_filter(args, envs):
     assert len(args) == 2
