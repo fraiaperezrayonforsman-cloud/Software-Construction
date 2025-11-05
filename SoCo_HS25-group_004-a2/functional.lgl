@@ -1,0 +1,9 @@
+["set", "sq_func", ["func", ["n"], ["multiplizieren", "n", "n"]]]
+["set", "A", ["array", 4]]                   
+["set_value", "A", 0, 1]                     
+["set_value", "A", 1, 2]                     
+["set_value", "A", 2, 3]                     
+["set_value", "A", 3, 4]                     
+["set", "B", ["map", "A", "sq_func"]]
+
+
