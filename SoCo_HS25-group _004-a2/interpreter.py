@@ -164,10 +164,10 @@ def do_until(args,env):
     cond = args[1]
     body = args[0]
     result = None
-    while(do(cond,env)):
-        print(env) #for checking if it works 
+    while True:                 #do...until should execute code until condition is True 
         result = do(body,env)
-    print("The end of the loop")
+        if do(cond, env):       #Check now if condition is True
+            break               #end loop
     return result 
 
 def do_call(args,envs):
