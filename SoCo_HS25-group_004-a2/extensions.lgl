@@ -8,15 +8,17 @@
     [
         "until",
         ["set", "n", ["subtrahieren", ["get", "n"], 2]],
-        ["greater_than_or_equal", ["get", "n"], 2]
+        ["less_than", ["get", "n"], 2]
     ],
+    ["print",["string", "Solution for algorithm 2.29:"],["get", "n"]],
     [   "until",
         [
             "seq",
             ["set", "i", ["addieren", ["get", "i"], 1]],
             ["set", "s", ["addieren", ["get", "s"], ["get", "i"]]]
         ],
-        ["less_than", ["get", "i"], ["get", "m"]]],
+        ["equal", ["get", "i"], ["get", "m"]]],
+    ["print",["string", "Solution for algorithm 2.31:"],["get", "s"]],
     [
          "until",
     [
@@ -24,8 +26,10 @@
         ["set", "factorial", ["multiplizieren", ["get", "factorial"], ["get", "a"]]],
         ["set", "a", ["subtrahieren", ["get", "a"], 1]]
     ],
-    ["greater_than_or_equal", ["get", "a"], 1]
-    ]
+    ["equal", ["get", "a"], 1]
+    ],
+    ["print",["string", "Solution for factorial algorithm :"],["get", "factorial"]]
+   
    
 ]
 
