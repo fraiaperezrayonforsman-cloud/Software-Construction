@@ -1,36 +1,54 @@
-["seq",
-["set", "n", 5],
-["set", "i", 0],
-["set", "s", 0],
-["set","m",4],
-["set","factorial",1],
-["set","a",4],
-    [
+[
+  "seq",
+  ["set", "even_or_odd",
+    ["func", ["n"],
+      [
         "until",
         ["set", "n", ["subtrahieren", ["get", "n"], 2]],
         ["less_than", ["get", "n"], 2]
-    ],
-    ["print",["string", "Solution for algorithm 2.29:"],["get", "n"]],
-    [   "until",
+      ]
+    ]
+  ],
+  ["set", "sum_up_to",
+    ["func", ["m"],
+      [
+        "seq",
+        ["set", "i", 0],
+        ["set", "s", 0],
         [
+          "until",
+          [
             "seq",
             ["set", "i", ["addieren", ["get", "i"], 1]],
             ["set", "s", ["addieren", ["get", "s"], ["get", "i"]]]
+          ],
+          ["equal", ["get", "i"], ["get", "m"]]
         ],
-        ["equal", ["get", "i"], ["get", "m"]]],
-    ["print",["string", "Solution for algorithm 2.31:"],["get", "s"]],
-    [
-         "until",
-    [
+        ["get", "s"]
+      ]
+    ]
+  ],
+  ["set", "factorial_func",
+    ["func", ["a"],
+      [
         "seq",
-        ["set", "factorial", ["multiplizieren", ["get", "factorial"], ["get", "a"]]],
-        ["set", "a", ["subtrahieren", ["get", "a"], 1]]
-    ],
-    ["equal", ["get", "a"], 1]
-    ],
-    ["print",["string", "Solution for factorial algorithm :"],["get", "factorial"]]
-   
-   
+        ["set", "factorial", 1],
+        [
+          "until",
+          [
+            "seq",
+            ["set", "factorial", ["multiplizieren", ["get", "factorial"], ["get", "a"]]],
+            ["set", "a", ["subtrahieren", ["get", "a"], 1]]
+          ],
+          ["equal", ["get", "a"], 1]
+        ],
+        ["get", "factorial"]
+      ]
+    ]
+  ],
+  ["print", ["string", "Solution for algorithm 2.29:"], ["call", "even_or_odd", 5]],
+  ["print", ["string", "Solution for algorithm 2.31:"], ["call", "sum_up_to", 4]],
+  ["print", ["string", "Solution for factorial algorithm:"], ["call", "factorial_func", 4]]
 ]
 
 
