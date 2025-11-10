@@ -1,0 +1,39 @@
+[
+  "seq",
+
+  ["set", "square",
+    ["func", ["n"],
+      ["multiplizieren", ["get", "n"], ["get", "n"]]
+    ]
+  ],
+
+  ["set", "cube",
+    ["func", ["x"],
+      ["multiplizieren", ["call", "square", ["get", "x"]], ["get", "x"]]
+    ]
+  ],
+
+  ["set", "sum_of_powers",
+    ["func", ["a"],
+      [
+        "addieren",
+        ["call", "square", ["get", "a"]],
+        ["call", "cube", ["get", "a"]]
+      ]
+    ]
+  ],
+
+  ["set", "main",
+    ["func", [],
+      [
+        "seq",
+        ["print", ["string", "EXAMPLE"]],
+        ["call", "square", 3],
+        ["call", "cube", 2],
+        ["call", "sum_of_powers", 3]
+      ]
+    ]
+  ],
+
+  ["call", "main"]
+]
