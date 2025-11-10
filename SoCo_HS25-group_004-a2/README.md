@@ -17,6 +17,8 @@ In the extensions.lgl file we implemented three algorithms:
 
 Each algorithm is called using do_call function. 
 
+## Step 02
+
 ## Step 03 
 
 do_map:
@@ -27,3 +29,12 @@ The same method is used here with using local environments and using pop for eac
 
 do_filter:
 The assert makes sure that the second argument is a function for filter to work. The method here is similar to do_map and do_reduce with a True check to add the filtered elements to a result list. 
+
+## Step 04 
+
+## Authors 
+Julie Truc Dao
+
+Fraia Pérez-Rayón
+
+Natalia Piegat (missbo-cyber is my github account I connected with gitlab, when I do "git-push" from Visual Studio Code this nickname appears)
