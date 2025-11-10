@@ -29,20 +29,20 @@ def env_get(name,envs):
             return env[name]
     assert False, f"Unknown variable {name}"
 
-def do_seq(args,env):
+def do_seq(args,envs):
     for each_ops in args:
-        res = do(each_ops,env)
+        res = do(each_ops,envs)
     return res
 
-def do_addieren(args,env):
+def do_addieren(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left + right
 
-def do_absolutewert(args,env):
+def do_absolutewert(args,envs):
     assert len(args) == 1
-    value = do(args[0],env)
+    value = do(args[0],envs)
     if value >= 0:
         return value
     return -value
@@ -60,113 +60,114 @@ def do_absolutewert(args,env):
         return value 
     return -value
     
-def do_multiplizieren(args,env):
-    left = do(args[0],env)
-    right = do(args[1],env)
+def do_multiplizieren(args,envs):
+    assert len(args) == 2
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left * right 
 
-def do_dividieren(args,env):
+def do_dividieren(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left/right
 
-def do_potenzieren(args,env):
+def do_potenzieren(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left ** right
 
-def do_modulo(args,env):
+def do_modulo(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left%right
 
-def do_less_than(args,env):
+def do_less_than(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left < right
 
-def do_greater_than(args,env):
+def do_greater_than(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left > right
 
-def do_less_than_or_equal(args,env):
+def do_less_than_or_equal(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left <= right
 
-def do_greater_than_or_equal(args,env):
+def do_greater_than_or_equal(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left >= right
 
-def do_equal(args,env):
+def do_equal(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left == right
 
-def do_not_equal(args,env):
+def do_not_equal(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     return left != right
 
-def do_and(args,env):
+def do_and(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     assert (left == 1 or left == 0) and (right == 1 or right == 0)
     if left == 1 and right == 1:
         return 1
     else:
         return 0
     
-def do_or(args,env):
+def do_or(args,envs):
     assert len(args) == 2
-    left = do(args[0],env)
-    right = do(args[1],env)
+    left = do(args[0],envs)
+    right = do(args[1],envs)
     assert (left == 1 or left == 0) and (right == 1 or right == 0)
     if left == 1 or right == 1:
         return 1
     else:
         return 0
 
-def do_not(args,env):
+def do_not(args,envs):
     assert len(args) == 1
-    left = do(args[0],env)
+    left = do(args[0],envs)
     assert (left == 1 or left == 0)
     if left == 1:
         return 0
     else:
         return 1
     
-def do_print(args, env):
-    args = [do(a, env) for a in args] #swapped a and env args of the do func
+def do_print(args, envs):
+    args = [do(a, envs) for a in args] #swapped a and env args of the do func
     print(*args)
     return None
 
-def do_func(args, env):
+def do_func(args, envs):
     assert len(args) == 2
     params = args[0]
     body = args[1]
     return ["func",params,body]
 
-def do_until(args,env):
+def do_until(args,envs):
     assert len(args) == 2
     cond = args[1]
     body = args[0]
     result = None
     while True:                 #do...until should execute code until condition is True 
-        result = do(body,env)
-        if do(cond, env):       #Check now if condition is True
+        result = do(body,envs)
+        if do(cond, envs):       #Check now if condition is True
             break               #end loop
     return result 
 
