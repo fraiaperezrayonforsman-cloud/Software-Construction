@@ -29,8 +29,8 @@ or when the index equals the length of the array. If the index is within the len
 - do_new_set: returns an empty set. 
 - do_insert_set: retrieves the desired set defined at position 0 from the environment and asserts that it is indeed a set. It asserts that the defined value at position 1 is not yet present in the set. If it is not yet present, it adds the value. Lastly it updates the set in the environment.
 - do_exist: retrives the desired set defined at position 0 from the environment. It checks whether the value defined at position 1 exists in the set. It returns a boolean answering this question.
-- do_merge_set: 
-- do_string: 
+- do_merge_set: retrieves the two desired sets defined at positions 1 and 2 from the environment. Asserts that they are both of type set and unites them. Lastly it adds this new set to the environment. 
+- do_string (additional): helper function to print the name the name of the variable in use.
 
 ## Step 03 
 
