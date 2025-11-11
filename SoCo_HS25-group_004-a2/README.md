@@ -50,7 +50,7 @@ TRACE: a list which stores each function call & the data
 DEPTH: current nesting level for indentation 
 TRACING: boolean 
 
-do_call():
+do_call() & do_print():
 The time is measured with time.time(). Each function call appends an entry to TRACE that stores the name, depth and duration. There is a variable index to update the right entry after nested calls. DEPTH is increased before the body to resemble the new nesting level. It is decremented after the function finishes to restore the previous indentation level. 
 
 print_trace():
