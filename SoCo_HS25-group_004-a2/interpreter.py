@@ -152,6 +152,16 @@ def do_not(args,env):
 def do_print(args, env):
     args = [do(a, env) for a in args] #swapped a and env args of the do func
     print(*args)
+    if TRACING:
+        start = time.time()
+        index = len(TRACE)                          
+        TRACE.append({"func": name_func, "depth": DEPTH, "duration": None})
+        DEPTH += 1
+
+    if TRACING:
+        end = time.time()
+        DEPTH -= 1
+        TRACE[index]["duration"] = end - start  
     return None
 
 def do_func(args, env):
