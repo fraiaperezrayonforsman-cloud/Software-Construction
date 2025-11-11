@@ -53,18 +53,22 @@ def do_subtrahieren(args,envs):
     left = do(args[0],envs)
     right = do(args[1],envs)
     return left - right
-    
-def do_multiplizieren(args,envs):
-    assert len(args) == 2
-    left = do(args[0],envs)
-    right = do(args[1],envs)
-    return left * right 
+ 
+def do_multiplizieren(args, envs):
+    assert len(args) >= 2 #it can accept more than two arguments to calculate the cube 
+    result = 1
+    for a in args:
+        value = do(a, envs)
+        result *= value
+    return result
 
 def do_dividieren(args,envs):
-    assert len(args) == 2
-    left = do(args[0],envs)
-    right = do(args[1],envs)
-    return left/right
+    assert len(args) >= 2
+    values = [do(a, envs) for a in args]
+    result = values[0]
+    for v in values[1:]:
+        result /= v
+    return result
 
 def do_potenzieren(args,envs):
     assert len(args) == 2
@@ -144,13 +148,14 @@ def do_not(args,envs):
         return 1
     
 def do_print(args, envs):
+    global DEPTH
     args = [do(a, envs) for a in args] #swapped a and env args of the do func
     print(*args)
     name_func = args[0]
     if TRACING:
         start = time.time()
         index = len(TRACE)                          
-        TRACE.append({"func": name_func, "depth": DEPTH, "duration": None})
+        TRACE.append({"func": "print", "depth": DEPTH, "duration": None})
         DEPTH += 1
 
     if TRACING:
