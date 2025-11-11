@@ -146,6 +146,7 @@ def do_not(args,envs):
 def do_print(args, envs):
     args = [do(a, envs) for a in args] #swapped a and env args of the do func
     print(*args)
+    name_func = args[0]
     if TRACING:
         start = time.time()
         index = len(TRACE)                          
