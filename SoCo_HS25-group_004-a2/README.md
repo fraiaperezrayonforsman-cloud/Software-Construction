@@ -47,7 +47,9 @@ main():
 In the first step there is a check if the program is started with --trace. After that, we got
 
 TRACE: a list which stores each function call & the data 
+
 DEPTH: current nesting level for indentation 
+
 TRACING: boolean 
 
 do_call() & do_print():
