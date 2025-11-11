@@ -58,6 +58,8 @@ The time is measured with time.time(). Each function call appends an entry to TR
 print_trace():
 This function is to format the output as a tree. 
 
+In our tracing.lgl file we keep track of all called user defined functions and print function. 
+
 ## ChatGPT Prompts
 "Troubleshooting built-in calls not working in do_reduce"
 
