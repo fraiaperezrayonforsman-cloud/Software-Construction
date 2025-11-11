@@ -18,11 +18,11 @@ In the extensions.lgl file we implemented three algorithms:
 Each algorithm is called using do_call function. 
 
 ## Step 02
-We add several functions to include arrays and sets in to the environment. 
-Besides the common assertion to check the expected number of arguments the functions have the following functionalities: 
+We add several functions to include arrays and sets into the environment. 
+Besides the common assertion to check the required number of arguments, the functions have the following functionalities: 
 - do_array: creates a new array of length defined by argument in position 0. It asserts that the argument in postion 0 is of type integer and that it is equal or larger than 0. It returns an array with the defined size.
-- do_value_at: it retrieves the desired array from the environment. It checks whether it is indeed an array and if its length is longer than 0. Moreover, it retrieves a desired index and checks whether the index is within the length of the array. If it is it returns the value at the defined index.
-- do_set_value: it retrieves the desired array from the environment. It checks whether it is indeed an array and if its length. If the length is 0 it checks that the index defined at position 1, is also equal to 0. Otherwise it returns an assertion error since the index does not exist in the array. There are two cases when the value, defined at position 1, is simply appended to the array; when the array is of length 0
+- do_value_at: it retrieves the desired array from the environment. It checks whether it is indeed an array and if its length is longer than 0. Moreover, it retrieves a desired index and checks whether the index is within the length of the array. If it is, it returns the value at the defined index.
+- do_set_value: it retrieves the desired array from the environment and it checks whether it is indeed an array. If the length of the array is 0 it checks that the index defined at position 1, is also equal to 0. Otherwise it returns an assertion error since the index does not exist in the array. There are two cases when the value, defined at position 1, is simply appended to the array; when the array is of length 0
 or when the index equals the length of the array. If the index is within the length of the array, then the value is set at the respective index. Lastly, the array is updated in the environment with the env_set function.
 - do_array_size: retrieves the desired array, checks that it is indeed an array and returns the length of the array.
 - do_array_concat: retrieves two desired arrays from the environment, checks that both are indeed arrays and returns array_2 concatenated to array_1.
