@@ -52,13 +52,6 @@ def do_subtrahieren(args,envs):
     left = do(args[0],envs)
     right = do(args[1],envs)
     return left - right
-
-def do_absolutewert(args,env):
-    assert len(args) == 1
-    value = do(args[0],env)
-    if value >= 0:
-        return value 
-    return -value
     
 def do_multiplizieren(args,envs):
     assert len(args) == 2
@@ -135,10 +128,10 @@ def do_or(args,envs):
     left = do(args[0],envs)
     right = do(args[1],envs)
     assert (left == 1 or left == 0) and (right == 1 or right == 0)
-    if left == 1 or right == 1:
-        return 1
-    else:
+    if left == 0 and right == 0:
         return 0
+    else:
+        return 1
 
 def do_not(args,envs):
     assert len(args) == 1
