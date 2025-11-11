@@ -1,0 +1,35 @@
+[
+  "seq",
+
+  ["set", "get_cube_power",
+    ["func", ["n"],
+      [
+        "multiplizieren",
+        ["get", "n"],
+        ["get", "n"],
+        ["get", "n"]
+      ]
+    ]
+  ],
+
+  ["set", "add_cubes",
+    ["func", ["a", "b"],
+      [
+        "addieren",
+        ["call", "get_cube_power", ["get", "a"]],
+        ["call", "get_cube_power", ["get", "b"]]
+      ]
+    ]
+  ],
+
+  ["set", "main",
+    ["func", [],
+      [
+        "print",
+        ["call", "add_cubes", 10, 12]
+      ]
+    ]
+  ],
+
+  ["call", "main"]
+]

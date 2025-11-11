@@ -1,6 +1,7 @@
 import sys
 import json
 import pprint
+import time
 
 env = dict()
 
@@ -21,7 +22,7 @@ def do_get(args,envs):
     assert isinstance(args[0],str)
     var_name = args[0]
     return env_get(var_name,envs)
- 
+
 def env_get(name,envs):
     assert isinstance(name,str)
     for env in reversed(envs):
@@ -145,6 +146,16 @@ def do_not(args,envs):
 def do_print(args, envs):
     args = [do(a, envs) for a in args] #swapped a and env args of the do func
     print(*args)
+    if TRACING:
+        start = time.time()
+        index = len(TRACE)                          
+        TRACE.append({"func": name_func, "depth": DEPTH, "duration": None})
+        DEPTH += 1
+
+    if TRACING:
+        end = time.time()
+        DEPTH -= 1
+        TRACE[index]["duration"] = end - start  
     return None
 
 def do_func(args, envs):
@@ -165,6 +176,8 @@ def do_until(args,envs):
     return result 
 
 def do_call(args,envs):
+    global DEPTH
+    
     assert len(args) >= 1
     assert isinstance(args[0],str)
     name_func = args[0] 
@@ -181,7 +194,20 @@ def do_call(args,envs):
     for index,param_name in enumerate(params):
         local_env[param_name] = values[index]
     envs.append(local_env)
-    result = do(body,envs) 
+    
+    if TRACING:
+        start = time.time()
+        index = len(TRACE)                          
+        TRACE.append({"func": name_func, "depth": DEPTH, "duration": None})
+        DEPTH += 1
+
+    result = do(body, envs)
+
+    if TRACING:
+        end = time.time()
+        DEPTH -= 1
+        TRACE[index]["duration"] = end - start  
+    
     envs.pop()
 
     return result
@@ -368,15 +394,39 @@ def do(program,envs):
     func = OPS[program[0]]
     return func(program[1:],envs)
 
+def print_trace(trace):
+    for entry in trace:
+        dur = entry.get("duration")
+        ms = round(dur * 1000, 3)
+        indent = "  " * entry["depth"]
+        if entry["depth"] > 0:
+            branch = "+--" 
+        else: 
+            branch = ""
+        print(f"{indent}{branch}{entry['func']} ({ms}ms)")
 
 def main():
-    filename = sys.argv[1]
+    trace_mode = ("--trace" in sys.argv) 
+    filename = sys.argv[-1]
     with open(filename,'r') as f:
         program = json.load(f)
         envs = [dict()] 
+        
+        global TRACE, DEPTH, TRACING
+        if trace_mode:
+            TRACE = []
+            DEPTH = 0
+            TRACING = True
+        else:
+            TRACING = False
+        
         result = do(program,envs)
     print(">>>" , result)
-    pprint.pprint(envs)
+    
+    if trace_mode:
+        print_trace(TRACE)
+    else:
+        pprint.pprint(envs)
 
 if __name__ == '__main__':
     main()
