@@ -1,24 +1,23 @@
 [
   "seq",
 
-  ["set", "square",
+  ["set", "get_cube_power",
     ["func", ["n"],
-      ["multiplizieren", ["get", "n"], ["get", "n"]]
+      [
+        "multiplizieren",
+        ["get", "n"],
+        ["get", "n"],
+        ["get", "n"]
+      ]
     ]
   ],
 
-  ["set", "cube",
-    ["func", ["x"],
-      ["multiplizieren", ["call", "square", ["get", "x"]], ["get", "x"]]
-    ]
-  ],
-
-  ["set", "sum_of_powers",
-    ["func", ["a"],
+  ["set", "add_cubes",
+    ["func", ["a", "b"],
       [
         "addieren",
-        ["call", "square", ["get", "a"]],
-        ["call", "cube", ["get", "a"]]
+        ["call", "get_cube_power", ["get", "a"]],
+        ["call", "get_cube_power", ["get", "b"]]
       ]
     ]
   ],
@@ -26,11 +25,8 @@
   ["set", "main",
     ["func", [],
       [
-        "seq",
-        ["print", ["string", "EXAMPLE"]],
-        ["call", "square", 3],
-        ["call", "cube", 2],
-        ["call", "sum_of_powers", 3]
+        "print",
+        ["call", "add_cubes", 10, 12]
       ]
     ]
   ],
