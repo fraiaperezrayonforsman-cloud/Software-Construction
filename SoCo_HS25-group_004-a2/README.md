@@ -33,7 +33,6 @@ or when the index equals the length of the array. If the index is within the len
 - do_string (additional): helper function to print the name the name of the variable in use.
 
 ## Step 03 
-
 do_map:
 The first lines check if the arguments are valid. The current environment is retrieved and the assertions make sure that the first argument is really an array and the second is a function. The function is separated into params and body. In the loop an environment stack is used, so that each element runs in a local context to avoid conflicts. The result is appended to a separate list so the original array is not modified. 
 
@@ -44,6 +43,18 @@ do_filter:
 The assert makes sure that the second argument is a function for filter to work. The method here is similar to do_map and do_reduce with a True check to add the filtered elements to a result list. 
 
 ## Step 04 
+main():
+In the first step there is a check if the program is started with --trace. After that, we got
+
+TRACE: a list which stores each function call & the data 
+DEPTH: current nesting level for indentation 
+TRACING: boolean 
+
+do_call():
+The time is measured with time.time(). Each function call appends an entry to TRACE that stores the name, depth and duration. There is a variable index to update the right entry after nested calls. DEPTH is increased before the body to resemble the new nesting level. It is decremented after the function finishes to restore the previous indentation level. 
+
+print_trace():
+This function is to format the output as a tree. 
 
 ## Authors 
 Julie Truc Dao
