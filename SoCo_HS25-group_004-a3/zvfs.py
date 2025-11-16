@@ -1,18 +1,19 @@
-import struct
 import time
 import os
+import sys
 
+from pathlib import Path
 from struct import pack, unpack
 
 #Constant variables
 HEADER_SIZE = 64
-FILE_ENTRY = 64
+FILE_ENTRY_SIZE = 64
 FILE_CAPACITY = 32
 MAGIC = b"ZVFSDSK1"
 ALIGNMENT = 64
 VERSION = 1
 FILE_TABLE_OFFSET = 64
-DATA_START_OFFSET = 64*(1+32)
+DATA_START_OFFSET = HEADER_SIZE + (FILE_CAPACITY * FILE_ENTRY_SIZE)
 
 FORMAT_STRING_HEADER = '<8s B B 2s H H H 2s I I I I H 26s'
 FORMAT_STRING_FILE_ENTRY = '<32s I I B B 2s Q 12s'
@@ -21,37 +22,125 @@ def mkfs(zvfs_name):
     try:
         with open(zvfs_name, "wb") as filesys:
             header = pack(
+                 FORMAT_STRING_HEADER,
                 MAGIC,
                 VERSION,
                 0,
                 b'\x00\x00',
                 0,
                 FILE_CAPACITY,
-                FILE_ENTRY,
+                FILE_ENTRY_SIZE,
                 b'\x00\x00',
                 FILE_TABLE_OFFSET,
                 DATA_START_OFFSET,
                 DATA_START_OFFSET,
                 0,
                 0,
-                b'\x00' * 26,
-                FORMAT_STRING_HEADER,
-                FORMAT_STRING_FILE_ENTRY
+                b'\x00' * 26
             )
             filesys.write(header)
         
-        zero_entry = b'\x00' * FILE_ENTRY
-        filesys.write(zero_entry * FILE_CAPACITY)
-    except:
-        IOError("could not create Virtual Filesystem correclty")
+            zero_entry = b'\x00' * FILE_ENTRY_SIZE
+            filesys.write(zero_entry * FILE_CAPACITY)
+        print("Zest Virtual Filesystem {zvfs_name} created correctly")
+    except IOError as error:
+        print(f"could not create Zest Virtual Filesystem correclty: {error}")
 
 def padding_estimation(data_size):
-    dif = data_size % FILE_ENTRY
+    dif = data_size % ALIGNMENT
     if dif == 0:
         return 0
     else:
         return ALIGNMENT - dif
     
-def field_update():
+def field_update(zvfs_file, offset, format, value):
     try:
+        with open(zvfs_file, "r+b") as file:
+            file.seek(offset)
+            file.write(pack(format, value))
+    except IOError as error:
+        print(f"could not update field: {error}")
+
+def addfs(zvfs_name, new_file):
+    new_file = Path(new_file)
+    assert new_file.exists(), "filepath does not exist"
+    try:
+        with open(new_file, "rb") as file:
+            file_data = file.read()
+        file_len = len(file_data)
+        file_name = os.path.basename(new_file)
+        assert file_len < 32, f"{file_name} is larger than 32 characters" 
+        padding = padding_estimation(file_len)
         
+        #look for free space in file system
+        with open(zvfs_name, "r+b") as filesys:
+            filesys.seek(0)
+            header_translated = unpack(FORMAT_STRING_HEADER, filesys.read(HEADER_SIZE))
+            (magic, _, _, _, file_count, file_capacity, _, _, _, _, next_free_offset,_, _, _) = header_translated
+
+            assert file_count < file_capacity, "no more space left for new files"
+            assert magic == MAGIC, "invalid magic string"
+
+            entry_offset = -1
+
+            for i in range(FILE_CAPACITY):
+                current_offset = FILE_TABLE_OFFSET + i * FILE_ENTRY_SIZE
+                filesys.seek(current_offset)
+                entry = filesys.read(FILE_ENTRY_SIZE)
+
+                if entry[0]==0:
+                    entry_offset = current_offset
+                    break
+                
+            assert entry_offset > -1, "no free file entry available"
+
+            #add file
+            file_start_offset = next_free_offset
+            filesys.seek(file_start_offset)
+            filesys.write(file_data)
+            if padding > 0:
+                filesys.write(b'\x00'*padding)
+    
+            new_next_free_offset = file_start_offset + file_len + padding
+
+            #write new file entry
+            file_name_padding = file_name.encode('utf-8') + b'\x00'
+
+            timestamp = int(time.time())
+
+            file_entry_data = pack(
+                FORMAT_STRING_FILE_ENTRY,
+                file_name_padding,
+                file_start_offset,
+                file_len,
+                0,
+                0,
+                b'\x00\x00',
+                timestamp,
+                b'\x00' * 12)
+            filesys.seek(entry_offset)
+            filesys.write(file_entry_data)
+
+        #update header fields
+        field_update(zvfs_name, 28, 'I', new_next_free_offset)
+        field_update(zvfs_name, 12, 'H', file_count + 1)
+
+        print(f"The {new_file} was added correctly to {zvfs_name}")
+
+    except IOError as error:
+        print(f"Error while adding new file to filesystem: {error}")
+        
+    
+def main(args):
+    assert len(args) > 2, f"not enough arguments"
+    command = args[1]
+    if command == "mkfs" and len(args) == 3:
+        mkfs(args[2])
+    elif command == "addfs" and len(args) == 4:
+        addfs(args[2], args[3])
+    else:
+        print(f"Unknown command {command} or incorrect number of args")
+
+if __name__ == '__main__':
+    main(sys.argv)
+
