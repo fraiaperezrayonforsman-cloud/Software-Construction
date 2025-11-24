@@ -22,7 +22,7 @@ def mkfs(zvfs_name):
     try:
         with open(zvfs_name, "wb") as filesys:
             header = pack(
-                 FORMAT_STRING_HEADER,
+                FORMAT_STRING_HEADER,
                 MAGIC,
                 VERSION,
                 0,
@@ -130,14 +130,39 @@ def addfs(zvfs_name, new_file):
     except IOError as error:
         print(f"Error while adding new file to filesystem: {error}")
         
+
+def gifs(zvfs_name):
+    try:
+        total_size = os.path.getsize(zvfs_name)
+        
+        with open(zvfs_name, "rb") as fs:
+            fs.seek(0)
+            header = fs.read(HEADER_SIZE)
+            _, _, _, _, file_count, file_capacity, _, _, _, _, _, _, deleted_files, _ = unpack(FORMAT_STRING_HEADER, header)
+            free_entries = file_capacity - file_count - deleted_files
+            
+            print(f"Filesystem file     : {zvfs_name}")
+            print(f"Files present       : {file_count}")
+            print(f"Free entries        : {free_entries}")
+            print(f"Deleted files       : {deleted_files}")
+            print(f"Total size          : {total_size} bytes")
     
+    except FileNotFoundError:
+        print(f"{zvfs_name} does not exist")
+        
+    except IOError as error:
+        print(f"Error while reading filesystem: {error}")
+
+
 def main(args):
-    assert len(args) > 2, f"not enough arguments"
+    assert len(args) > 2, "not enough arguments"
     command = args[1]
     if command == "mkfs" and len(args) == 3:
         mkfs(args[2])
     elif command == "addfs" and len(args) == 4:
         addfs(args[2], args[3])
+    elif command == "gifs" and len(args) == 3:
+        gifs(args[2])
     else:
         print(f"Unknown command {command} or incorrect number of args")
 
