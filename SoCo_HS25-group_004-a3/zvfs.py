@@ -130,6 +130,113 @@ def addfs(zvfs_name, new_file):
     except IOError as error:
         print(f"Error while adding new file to filesystem: {error}")
         
+        
+def lsfs(zvfs_name):
+    zvfs_name = Path(zvfs_name)
+    assert zvfs_name.exists(), f"Filesystem {zvfs_name} does not exist"
+    try:
+        with open(zvfs_name, "rb") as filesys:
+            for i in range(FILE_CAPACITY):
+                entry_offset = FILE_TABLE_OFFSET + i * FILE_ENTRY_SIZE
+                filesys.seek(entry_offset)
+                file = filesys.read(FILE_ENTRY_SIZE)
+
+                entry = unpack(FORMAT_STRING_FILE_ENTRY, file)
+
+                name = entry[0]
+                length = entry[2]
+                flag_deleted = entry[4]
+                created = entry[6]
+
+                if name[0] == 0 or flag_deleted == 1:
+                    continue
+
+                filename = name.split(b'\x00')[0].decode('utf-8')
+                creation_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(created))
+
+                print(f"Name: {filename}")
+                print(f"Size: {length} bytes")
+                print(f"Created: {creation_time}")
+
+    except IOError as error:
+        print(f"Error while reading all the files in the filesystem: {error}")
+
+def catfs(zvfs_name, filename):
+    zvfs_name = Path(zvfs_name)
+    assert zvfs_name.exists(), f"Filesystem {zvfs_name} does not exist"
+
+    filename = Path(filename).name 
+    find = False
+
+    try:
+        with open(zvfs_name, "rb") as filesys:
+            for i in range(FILE_CAPACITY):
+                entry_offset = FILE_TABLE_OFFSET + i * FILE_ENTRY_SIZE
+                filesys.seek(entry_offset)
+                entry_raw = filesys.read(FILE_ENTRY_SIZE)
+
+                entry = unpack(FORMAT_STRING_FILE_ENTRY, entry_raw)
+                name = entry[0]
+                start = entry[1]
+                length = entry[2]
+                flag_deleted = entry[4]
+
+                if name[0] == 0 or flag_deleted == 1:
+                    continue
+
+                entry_name = name.split(b'\x00')[0].decode('utf-8')
+                if entry_name == filename:  
+                    find = True
+                    filesys.seek(start)
+                    file_data = filesys.read(length)
+                    print(file_data.decode('utf-8'))
+                    break 
+                if find == False:
+                    print('This file does not exists in this filesystem')
+                        
+    except IOError as error:
+        print(f"Error while printing out the file content: {error}")
+
+def getfs(zvfs_name, filename):
+    zvfs_name = Path(zvfs_name)
+    assert zvfs_name.exists(), f"Filesystem {zvfs_name} does not exist"
+
+    filename = Path(filename).name
+    find = False
+
+    try:
+        with open(zvfs_name, "rb") as filesys:
+            for i in range(FILE_CAPACITY):
+                entry_offset = FILE_TABLE_OFFSET + i * FILE_ENTRY_SIZE
+                filesys.seek(entry_offset)
+                entry_raw = filesys.read(FILE_ENTRY_SIZE)
+
+                entry = unpack(FORMAT_STRING_FILE_ENTRY, entry_raw)
+                name = entry[0]
+                start = entry[1]
+                length = entry[2]
+                flag_deleted = entry[4]
+
+                if name[0] == 0 or flag_deleted == 1:
+                    continue
+
+                entry_name = name.split(b'\x00')[0].decode('utf-8')
+                if entry_name == filename:
+                    find = True
+                    filesys.seek(start)
+                    file_data = filesys.read(length)
+
+                    with open(filename, "wb") as writer:
+                        writer.write(file_data)
+
+                    print(f"File '{filename}' has been extracted.")
+                    break
+
+            if find == False:
+                print(f"File '{filename}' does not exist in the filesystem {zvfs_name}.")
+
+    except IOError as error:
+        print(f"Error while extracting a file from the filesystem: {error}")
 
 def gifs(zvfs_name):
     try:
@@ -163,6 +270,12 @@ def main(args):
         addfs(args[2], args[3])
     elif command == "gifs" and len(args) == 3:
         gifs(args[2])
+    elif command == 'lsfs' and len(args) == 3:
+        lsfs(args[2])
+    elif command == "catfs" and len(args) == 4:
+        catfs(args[2], args[3])
+    elif command == 'getfs' and len(args) == 4:
+        getfs(args[2],args[3])
     else:
         print(f"Unknown command {command} or incorrect number of args")
 
