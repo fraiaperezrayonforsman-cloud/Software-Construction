@@ -95,13 +95,12 @@ def addfs(zvfs_name, new_file):
             assert entry_offset > -1, "no free file entry available"
 
             #add file
-            file_start_offset = next_free_offset
-            filesys.seek(file_start_offset)
+            filesys.seek(next_free_offset)
             filesys.write(file_data)
             if padding > 0:
                 filesys.write(b'\x00'*padding)
     
-            new_next_free_offset = file_start_offset + file_len + padding
+            new_next_free_offset = next_free_offset + file_len + padding
 
             #write new file entry
             file_name_padding = file_name.encode('utf-8') + b'\x00'
@@ -111,7 +110,7 @@ def addfs(zvfs_name, new_file):
             file_entry_data = pack(
                 FORMAT_STRING_FILE_ENTRY,
                 file_name_padding,
-                file_start_offset,
+                next_free_offset,
                 file_len,
                 0,
                 0,
