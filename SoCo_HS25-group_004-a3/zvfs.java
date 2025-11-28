@@ -42,7 +42,7 @@ public class zvfs {
         for (int i = 0; i < FILE_CAPACITY; i++)
             file.write(zeroEntry);
 
-        System.out.println("Zest Virtual Filesystem" + zvfs_name + "created correctly.");
+        System.out.println("Zest Virtual Filesystem " + zvfs_name + " created correctly.");
 
     } catch (IOException error) {System.out.println("Could not create filesystem: " + error.getMessage());
     } 
@@ -93,24 +93,23 @@ public class zvfs {
                 filesys.readFully(header_translated);
 
                 ByteBuffer h = ByteBuffer.wrap(header_translated).order(ByteOrder.LITTLE_ENDIAN);
-
+                
                 byte[] magic = new byte[8];
-                h.get(magic);
-                h.get();
-                h.get(); 
-                h.getShort(); 
+
+                h.get(magic);              
+                h.get();                  
+                h.get();                  
+                h.getShort();             
                 short file_count = h.getShort();
                 short file_capacity = h.getShort();
-                h.getInt();
-                h.getShort(); 
-                h.getInt();
-                h.getInt();
+                h.getShort();               
+                h.getShort();            
+                h.getInt();                 
+                h.getInt();                
                 int next_free_offset = h.getInt();
-                h.getInt(); 
-                h.getInt();
                 h.getShort();
-                // skip 26 reserved bytes
-                h.position(h.position() + 26); 
+                byte[] reserved = new byte[26]; 
+                h.get(reserved);                  
 
                 if (file_count >= file_capacity) throw new IOException("no more space left for new files");
                 if (!java.util.Arrays.equals(magic, MAGIC)) throw new IOException("invalid magic string");
@@ -137,15 +136,16 @@ public class zvfs {
                 int new_next_free_offset = next_free_offset + file_len + padding;
                 
                 // add file
-                ByteBuffer entry = ByteBuffer.allocate(FILE_ENTRY_SIZE).order(ByteOrder.LITTLE_ENDIAN);
-                byte [] file_name_padding = file_name.getBytes(StandardCharsets.UTF_8);
+                ByteBuffer entry = ByteBuffer.allocate(FILE_ENTRY_SIZE);
+                byte [] file_name_enc = file_name.getBytes(StandardCharsets.UTF_8);
                 byte [] name_field = new byte[32];
-                System.arraycopy(file_name_padding, 0, name_field, 0, file_name_padding.length);
-                name_field[file_name_padding.length] = 0;
-                entry.put(name_field);
+                int len_file_name = Math.min(file_name_enc.length, 31);
+                System.arraycopy(file_name_enc, 0, name_field, 0, len_file_name);
+                name_field[len_file_name] = 0;
 
                 int timestamp = (int) (System.currentTimeMillis()/1000);
-
+                
+                entry.put(name_field);
                 entry.putInt(next_free_offset);
                 entry.putInt(file_len);
                 entry.put((byte) 0);
@@ -172,17 +172,16 @@ public class zvfs {
 }
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.out.println("Usage: java zvfs mkfs <filesystem_name>");
+            System.out.println("not enough arguments");
             return;
         }
-
         String command = args[0];
         if (command.equals("mkfs")) {
-            String filename = args[1];
-            mkfs(filename);
-            System.out.println("Filesystem created: " + filename);
-        } else {
-            System.out.println("Unknown command: " + command);
+            mkfs(args[1]);}
+        else if (command.equals("addfs")) {
+            addfs(args[1], args[2]);}
+        else {
+            System.out.println("Unknown command: " + command + "or incorrect number of args");
         }
     }
 }
