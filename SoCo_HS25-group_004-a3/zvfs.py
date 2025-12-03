@@ -259,6 +259,63 @@ def gifs(zvfs_name):
     except IOError as error:
         print(f"Error while reading filesystem: {error}")
 
+def rmfs(zvfs_name, filename):
+    found = False
+    
+    try:
+        with open(zvfs_name, "rb") as fs:
+            fs.seek(0)
+            header = fs.read(HEADER_SIZE)
+            (_,
+            _,
+            _,
+            _,
+            file_count,
+            file_capacity,
+            file_entry_size,
+            _,
+            file_table_offset,
+            _,
+            _,
+            _,
+            deleted_files,
+            _) = unpack(FORMAT_STRING_HEADER, header)
+            
+            for i in range(file_capacity):
+                entry_offset = file_table_offset + i * file_entry_size
+                fs.seek(entry_offset)
+                entry = fs.read(file_entry_size)
+                
+                if entry[0] == 0:
+                    continue 
+                
+                (name, _, _, _, flag, _, _, _) = unpack(FORMAT_STRING_FILE_ENTRY, entry)
+                
+                entry_name = name.split(b'\x00', 1)[0].decode('utf-8')
+
+                if entry_name != filename:
+                    continue
+                
+                found = True
+                
+                if flag == 1:
+                    print(f"File {filename} is already marked as deleted.")
+                    break
+                
+                flag_offset = entry_offset +  32 + 4 + 4 + 1
+                field_update(zvfs_name, flag_offset, 'B', 1)
+                
+                field_update(zvfs_name, 12, 'H', file_count - 1) 
+                field_update(zvfs_name, 36, 'H', deleted_files + 1) 
+                
+                print(f"File {filename} marked as deleted.")
+    
+        if found == False:
+            print(f"File {filename} not found in filesystem.")
+    
+    except IOError as error:
+        print(f"Error while reading filesystem: {error}")
+
 
 def main(args):
     assert len(args) > 2, "not enough arguments"
@@ -275,6 +332,8 @@ def main(args):
         catfs(args[2], args[3])
     elif command == 'getfs' and len(args) == 4:
         getfs(args[2],args[3])
+    elif command == "rmfs" and len(args) == 4:
+        rmfs(args[2], args[3])
     else:
         print(f"Unknown command {command} or incorrect number of args")
 
