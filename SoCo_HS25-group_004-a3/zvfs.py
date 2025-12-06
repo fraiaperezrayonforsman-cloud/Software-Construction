@@ -172,9 +172,9 @@ def catfs(zvfs_name, filename):
             for i in range(FILE_CAPACITY):
                 entry_offset = FILE_TABLE_OFFSET + i * FILE_ENTRY_SIZE
                 filesys.seek(entry_offset)
-                entry_raw = filesys.read(FILE_ENTRY_SIZE)
+                file = filesys.read(FILE_ENTRY_SIZE)
 
-                entry = unpack(FORMAT_STRING_FILE_ENTRY, entry_raw)
+                entry = unpack(FORMAT_STRING_FILE_ENTRY, file)
                 name = entry[0]
                 start = entry[1]
                 length = entry[2]
@@ -208,9 +208,9 @@ def getfs(zvfs_name, filename):
             for i in range(FILE_CAPACITY):
                 entry_offset = FILE_TABLE_OFFSET + i * FILE_ENTRY_SIZE
                 filesys.seek(entry_offset)
-                entry_raw = filesys.read(FILE_ENTRY_SIZE)
+                file = filesys.read(FILE_ENTRY_SIZE)
 
-                entry = unpack(FORMAT_STRING_FILE_ENTRY, entry_raw)
+                entry = unpack(FORMAT_STRING_FILE_ENTRY, file)
                 name = entry[0]
                 start = entry[1]
                 length = entry[2]
