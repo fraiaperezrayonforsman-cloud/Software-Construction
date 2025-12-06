@@ -273,6 +273,63 @@ public static void lsfs(String zvfsName) {
             System.out.println("Error reading filesystem: " + e.getMessage());
         }
     }
+        
+    public static void getfs(String zvfsName, String fileName) {
+        try {
+            Path p = Paths.get(zvfsName);
+            if (!p.toFile().exists()) {
+                throw new IOException("Filesystem does not exist");
+            }
+            Path path = Paths.get(fileName);
+            String justName = path.getFileName().toString(); 
+            boolean find = false;
+            try (RandomAccessFile fs = new RandomAccessFile(zvfsName, "r")) {
+
+                for (int i = 0; i < FILE_CAPACITY; i++) {
+
+                    int entryOffset = FILE_TABLE_OFFSET + i * FILE_ENTRY_SIZE;
+                    fs.seek(entryOffset);
+
+                    byte[] entryBytes = new byte[FILE_ENTRY_SIZE];
+                    fs.readFully(entryBytes);
+
+                    ByteBuffer b = ByteBuffer.wrap(entryBytes).order(ByteOrder.LITTLE_ENDIAN);
+
+                    byte[] nameBytes = new byte[32];
+                    b.get(nameBytes);
+
+                    int start = b.getInt();
+                    int len = b.getInt();
+                    byte flags = b.get();
+                    byte deleted = b.get();
+                    b.getShort();
+                    long created = b.getLong();
+
+                    if (nameBytes[0] == 0 || deleted == 1)
+                        continue;
+
+                    String entryName = new String(nameBytes, StandardCharsets.UTF_8).split("\0")[0];
+
+                    if (entryName.equals(justName)) {
+                        find = true;
+                        fs.seek(start);
+                        byte[] fileData = new byte[len];
+                        fs.readFully(fileData);
+                        try (RandomAccessFile outFile = new RandomAccessFile(justName, "rw")) {
+                            outFile.write(fileData);
+                        } 
+                        System.out.println("File has been extracted");
+                        break;
+                    }
+                }
+                if (find == false)
+                    System.out.println("This file does not exists in this filesystem");
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error reading filesystem: " + e.getMessage());
+        }
+    }
 
     public static void main(String[] args) {
 
@@ -310,6 +367,15 @@ public static void lsfs(String zvfsName) {
                 }
                 else{
                     catfs(args[1],args[2]);
+                }
+                break;
+
+            case "getfs":
+                if(args.length != 3){
+                    System.out.println("Usage: getfs <filesystem> <file>");
+                }
+                else{
+                    getfs(args[1],args[2]);
                 }
                 break;
             default:
