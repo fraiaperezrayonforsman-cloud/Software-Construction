@@ -263,7 +263,7 @@ def rmfs(zvfs_name, filename):
     found = False
     
     try:
-        with open(zvfs_name, "rb") as fs:
+        with open(zvfs_name, "r+b") as fs:
             fs.seek(0)
             header = fs.read(HEADER_SIZE)
             (_,
@@ -316,6 +316,90 @@ def rmfs(zvfs_name, filename):
     except IOError as error:
         print(f"Error while reading filesystem: {error}")
 
+def dfrgfs(zvfs_name):
+    zvfs_name = Path(zvfs_name)
+    assert zvfs_name.exists(), f"Filesystem {zvfs_name} doesn't exist"
+
+    deleted_entries = 0
+    freed_bytes = 0
+
+    try:
+        with open(zvfs_name, "r+b") as fs:
+            fs.seek(0)
+            header = fs.read(HEADER_SIZE)
+            (_,
+            _,
+            _,
+            _,
+            _,
+            file_capacity,
+            file_entry_size,
+            _,
+            file_table_offset,
+            data_start_offset,
+            _,
+            _,
+            _,
+            _) = unpack(FORMAT_STRING_HEADER, header)
+
+            files = []
+
+            for i in range(file_capacity):
+                entry_offset = file_table_offset + i * file_entry_size
+                fs.seek(entry_offset)
+                entry = fs.read(file_entry_size)
+
+                if entry[0] == 0:
+                    continue
+
+                (name, start, length, _, flag, _, created, _) = unpack(FORMAT_STRING_FILE_ENTRY, entry)
+
+                if flag == 1:
+                    deleted_entries += 1
+                    freed_bytes += length + padding_estimation(length)
+                    continue
+
+                files.append((entry_offset, name, start, length, created))
+
+            new_offset = data_start_offset
+
+            for (entry_off, name, old_start, length, created) in files:
+                fs.seek(old_start)
+                data = fs.read(length)
+
+                fs.seek(new_offset)
+                fs.write(data)
+
+                field_update(zvfs_name, entry_off + 32, 'I', new_offset)
+
+                pad = padding_estimation(length)
+                if pad:
+                    fs.write(b'\x00' * pad)
+
+                new_offset += length + pad
+
+            for i in range(file_capacity):
+                entry_offset = file_table_offset + i * file_entry_size
+                fs.seek(entry_offset)
+                entry = fs.read(file_entry_size)
+
+                if entry[0] != 0:
+                    (_, _, _, _, flag_deleted, _, _, _) = unpack(FORMAT_STRING_FILE_ENTRY, entry)
+                    if flag_deleted == 1:
+                        fs.seek(entry_offset)
+                        fs.write(b"\x00" * file_entry_size)
+
+            fs.truncate(new_offset)
+
+        field_update(zvfs_name, 28, 'I', new_offset)     
+        field_update(zvfs_name, 36, 'H', 0)              
+        field_update(zvfs_name, 12, 'H', len(files))     
+
+        print(f"{deleted_entries} files defragmented")
+        print(f"{freed_bytes} bytes freed")
+
+    except IOError as error:
+        print(f"Error while defragmenting filesystem: {error}")
 
 def main(args):
     assert len(args) > 2, "not enough arguments"
