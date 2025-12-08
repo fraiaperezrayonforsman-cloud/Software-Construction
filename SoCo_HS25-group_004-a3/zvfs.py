@@ -69,7 +69,7 @@ def addfs(zvfs_name, new_file):
             file_data = file.read()
         file_len = len(file_data)
         file_name = os.path.basename(new_file)
-        assert file_len < 32, f"{file_name} is larger than 32 characters" 
+        assert file_len < 36, f"{file_name} is larger than 36 bytes" 
         padding = padding_estimation(file_len)
         
         #look for free space in file system
