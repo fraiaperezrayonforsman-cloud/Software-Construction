@@ -42,7 +42,7 @@ def mkfs(zvfs_name):
         
             zero_entry = b'\x00' * FILE_ENTRY_SIZE
             filesys.write(zero_entry * FILE_CAPACITY)
-        print("Zest Virtual Filesystem {zvfs_name} created correctly")
+        print(f"Zest Virtual Filesystem {zvfs_name} created correctly")
     except IOError as error:
         print(f"could not create Zest Virtual Filesystem correclty: {error}")
 
