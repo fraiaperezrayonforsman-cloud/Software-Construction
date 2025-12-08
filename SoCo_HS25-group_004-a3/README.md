@@ -1,3 +1,18 @@
+# ZEST Virtual File System 
+
+**HS25  SoCo-group  004**
+
+## Project Introduction 
+The goal of our project was to create a simplified virtual filesystem, stored entirely inside a binary file with .zvfs extension. 
+
+# lsfs 
+1. First we check if the provided filesystem exists by using .exists() function. 
+2. We open zvfs_name in the binary read mode "rb".
+3. We extract information which we need: name, length and created which is UNIX timestamp of created time. Moreover we check the deleted flag as we have to make sure we do not print files that were deleted.
+4. We convert the filename to sring using "UTF-8" decoding.
+5. Moreover we convert UNIX timestamp into a readable date. 
+6. Finally, we print the file information. 
+
 # rmfs
 1. We open the filesystem using "r+b+ to activate both reading and writing in binary mode. We need this as rmfs must inspect and modify bytes. 
 2. The header is unpacked with unpack() so we can extract file_count, file_capacity and table offsets. 
@@ -20,3 +35,5 @@
 5. Padding is applied after each file to maintain the alignment.
 6. After rewriting files, we rescan the table and physically clear all deleted entries.
 7. Finally, we truncate the filesystem to physically free the storage.
+
+# Authors 
