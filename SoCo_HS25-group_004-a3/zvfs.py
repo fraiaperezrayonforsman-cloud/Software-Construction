@@ -418,6 +418,8 @@ def main(args):
         getfs(args[2],args[3])
     elif command == "rmfs" and len(args) == 4:
         rmfs(args[2], args[3])
+    elif command == "dfrgfs" and len(args) == 3:
+        dfrgfs(args[2])
     else:
         print(f"Unknown command {command} or incorrect number of args")
 
