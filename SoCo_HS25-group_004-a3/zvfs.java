@@ -334,7 +334,8 @@ public static void lsfs(String zvfsName) {
     }
 
     public static void gifs(String fsName) {
-        try (RandomAccessFile fs = new RandomAccessFile(fsName,"r")) {
+        try (RandomAccessFile fs = new RandomAccessFile(fsName, "r")) {
+
             byte[] header = new byte[HEADER_SIZE];
             fs.seek(0L);
             fs.readFully(header);
@@ -342,16 +343,16 @@ public static void lsfs(String zvfsName) {
             ByteBuffer h = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN);
 
             h.position(10);
-            h.getShort();
-            short fileCount = h.getShort();
-            short fileCapacity = h.getShort();
-            h.getShort();
-            h.getShort();                             
-            h.getInt();                               
-            h.getInt();                               
-            h.getInt();                               
+            h.getShort();                 
+            short fileCount = h.getShort();   
+            short fileCapacity = h.getShort();   
+            h.getShort();                  
+            h.getShort();                 
+            h.getInt();                   
+            h.getInt();                   
+            h.getInt();                 
             short deletedFiles = h.getShort(); 
-            
+
             long totalSize = fs.length();
             int freeEntries = fileCapacity - fileCount - deletedFiles;
 
@@ -361,7 +362,7 @@ public static void lsfs(String zvfsName) {
             System.out.println("Deleted files       : " + deletedFiles);
             System.out.println("Total size          : " + totalSize + " bytes");
         } catch (IOException e) {
-        System.out.println("Error reading filesystem: " + e.getMessage());
+            System.out.println("Error reading filesystem: " + e.getMessage());
         }
     }
 
@@ -375,39 +376,39 @@ public static void lsfs(String zvfsName) {
             ByteBuffer h = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN);
 
             h.position(10);
-            h.getShort();                            
-            short fileCount    = h.getShort();
-            short fileCapacity = h.getShort();
-            short fileEntrySize = h.getShort();
-            h.getShort();                           
+            h.getShort();                              
+            short fileCount = h.getShort();          
+            short fileCapacity = h.getShort();           
+            short fileEntrySize = h.getShort();         
+            h.getShort();                              
             int fileTableOffset = h.getInt();
-            h.getInt();                            
-            h.getInt();                              
-            short deletedFiles = h.getShort();  
-            
+            h.getInt();                                 
+            h.getInt();                                 
+            short deletedFiles = h.getShort();         
+
             for (int i = 0; i < fileCapacity; i++) {
                 long entryOffset = fileTableOffset + (long) i * fileEntrySize;
+
                 fs.seek(entryOffset);
                 byte[] entry = new byte[FILE_ENTRY_SIZE];
                 fs.readFully(entry);
 
-                if (entry[0] == 0) {
-                    continue;
-                }
+                if (entry[0] == 0)
+                    continue; 
 
                 ByteBuffer e = ByteBuffer.wrap(entry).order(ByteOrder.LITTLE_ENDIAN);
                 byte[] nameBytes = new byte[32];
                 e.get(nameBytes);
-                e.getInt();
-                e.getInt();
-                e.get();
+
+                e.getInt();  
+                e.getInt();  
+                e.get();    
                 byte flagDeleted = e.get();
 
-                String entryName = new String(nameBytes, StandardCharsets.UFT_8).split("\0")[0];
+                String entryName = new String(nameBytes, StandardCharsets.UTF_8).split("\0")[0];
 
-                if (!entryName.equals(filename)) {
+                if (!entryName.equals(filename))
                     continue;
-                }
 
                 found = true;
 
@@ -420,35 +421,35 @@ public static void lsfs(String zvfsName) {
                 fs.seek(flagOffset);
                 fs.write(1);
 
-                field_update(fsName, 12L, "H", fileCount - 1);
-                field_update(fsName, 32L, "H", deletedFiles + 1);
+                field_update(fsName, 12L, "H", fileCount - 1);   
+                field_update(fsName, 36L, "H", deletedFiles + 1); 
 
                 System.out.println("File " + filename + " marked as deleted");
                 break;
             }
 
-            if (!found) {
-                System.out.println("File " + filename + "not found in filesystem");
-            }
+            if (!found)
+                System.out.println("File " + filename + " not found in filesystem");
+
         } catch (IOException e) {
-        System.out.println("Error while reading filesystem: " + e.getMessage());
+            System.out.println("Error while reading filesystem: " + e.getMessage());
         }
-    }
+    }   
 
     public static void dfrgfs(String fsName) {
         int deletedEntries = 0;
         long freedBytes = 0;
         int activeCount = 0;
         long[] entryOffsets = new long[FILE_CAPACITY];
-        int[] oldStarts     = new int[FILE_CAPACITY];
-        int[] lengths       = new int[FILE_CAPACITY];
+        int[] oldStarts = new int[FILE_CAPACITY];
+        int[] lengths = new int[FILE_CAPACITY];
 
         int fileCapacity;
         int fileEntrySize;
         int fileTableOffset;
         int dataStartOffset;
         int newOffset;
-        
+
         try (RandomAccessFile fs = new RandomAccessFile(fsName, "rwd")) {
             byte[] header = new byte[HEADER_SIZE];
             fs.seek(0L);
@@ -457,31 +458,37 @@ public static void lsfs(String zvfsName) {
 
             h.position(10);
             h.getShort();                           
-            h.getShort();                        
-            fileCapacity   = h.getShort();
-            fileEntrySize  = h.getShort();
-            h.getShort();                    
-            fileTableOffset = h.getInt();
-            dataStartOffset = h.getInt();
-            h.getInt();                           
-            h.getShort();  
-        
+            h.getShort();                            
+            fileCapacity   = h.getShort();          
+            fileEntrySize  = h.getShort();           
+            h.getShort();                         
+            fileTableOffset = h.getInt();         
+            dataStartOffset = h.getInt();         
+            h.getInt();                          
+            h.getShort();                     
+
             for (int i = 0; i < fileCapacity; i++) {
                 long entryOffset = fileTableOffset + (long) i * fileEntrySize;
                 fs.seek(entryOffset);
                 byte[] entry = new byte[FILE_ENTRY_SIZE];
                 fs.readFully(entry);
 
-                if (entry[0] == 0) {
-                    continue;
-                }
+                if (entry[0] == 0)
+                    continue; 
 
                 ByteBuffer e = ByteBuffer.wrap(entry).order(ByteOrder.LITTLE_ENDIAN);
                 e.position(32);
                 int start = e.getInt();
                 int length = e.getInt();
-                e.get();
+
+                e.get();  
                 byte flagDeleted = e.get();
+
+                if (flagDeleted == 1) {
+                    deletedEntries++;
+                    freedBytes += length + paddingEstimation(length);
+                    continue; 
+                }
 
                 entryOffsets[activeCount] = entryOffset;
                 oldStarts[activeCount] = start;
@@ -490,6 +497,7 @@ public static void lsfs(String zvfsName) {
             }
 
             newOffset = dataStartOffset;
+
             for (int i = 0; i < activeCount; i++) {
                 int oldStart = oldStarts[i];
                 int length = lengths[i];
@@ -506,13 +514,13 @@ public static void lsfs(String zvfsName) {
                 fs.write(b.array());
 
                 int pad = paddingEstimation(length);
-                if (pad > 0) {
+                if (pad > 0)
                     fs.write(new byte[pad]);
-                }
+
                 newOffset += length + pad;
             }
 
-            for (int i=0; i < fileCapacity; i++) {
+            for (int i = 0; i < fileCapacity; i++) {
                 long entryOffset = fileTableOffset + (long) i * fileEntrySize;
                 fs.seek(entryOffset);
                 byte[] entry = new byte[FILE_ENTRY_SIZE];
@@ -522,6 +530,7 @@ public static void lsfs(String zvfsName) {
                     ByteBuffer e = ByteBuffer.wrap(entry).order(ByteOrder.LITTLE_ENDIAN);
                     e.position(32 + 4 + 4 + 1);
                     byte flagDeleted = e.get();
+
                     if (flagDeleted == 1) {
                         fs.seek(entryOffset);
                         fs.write(new byte[FILE_ENTRY_SIZE]);
@@ -530,13 +539,14 @@ public static void lsfs(String zvfsName) {
             }
 
             fs.setLength(newOffset);
+
         } catch (IOException e) {
-            System.out.println("Error while defragmenting filesystem " + e.getMessage());
+            System.out.println("Error while defragmenting filesystem: " + e.getMessage());
             return;
         }
 
-        field_update(fsName, 28L, "I", newOffset);
-        field_update(fsName, 32L, "H", 0);
+        field_update(fsName, 28L, "I", newOffset);    
+        field_update(fsName, 36L, "H", 0);           
         field_update(fsName, 12L, "H", activeCount);
 
         System.out.println(deletedEntries + " files defragmented");
