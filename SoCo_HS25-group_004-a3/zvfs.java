@@ -6,6 +6,8 @@ import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class zvfs {
@@ -331,6 +333,216 @@ public static void lsfs(String zvfsName) {
         }
     }
 
+    public static void gifs(String fsName) {
+        try (RandomAccessFile fs = new RandomAccessFile(fsName,"r")) {
+            byte[] header = new byte[HEADER_SIZE];
+            fs.seek(0L);
+            fs.readFully(header);
+
+            ByteBuffer h = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN);
+
+            h.position(10);
+            h.getShort();
+            short fileCount = h.getShort();
+            short fileCapacity = h.getShort();
+            h.getShort();
+            h.getShort();                             
+            h.getInt();                               
+            h.getInt();                               
+            h.getInt();                               
+            short deletedFiles = h.getShort(); 
+            
+            long totalSize = fs.length();
+            int freeEntries = fileCapacity - fileCount - deletedFiles;
+
+            System.out.println("Filesystem file     : " + fsName);
+            System.out.println("Files present       : " + fileCount);
+            System.out.println("Free entries        : " + freeEntries);
+            System.out.println("Deleted files       : " + deletedFiles);
+            System.out.println("Total size          : " + totalSize + " bytes");
+        } catch (IOException e) {
+        System.out.println("Error reading filesystem: " + e.getMessage());
+        }
+    }
+
+    public static void rmfs(String fsName, String filename) {
+        boolean found = false;
+
+        try (RandomAccessFile fs = new RandomAccessFile(fsName, "rwd")) {
+            byte[] header = new byte[HEADER_SIZE];
+            fs.seek(0L);
+            fs.readFully(header);
+            ByteBuffer h = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN);
+
+            h.position(10);
+            h.getShort();                            
+            short fileCount    = h.getShort();
+            short fileCapacity = h.getShort();
+            short fileEntrySize = h.getShort();
+            h.getShort();                           
+            int fileTableOffset = h.getInt();
+            h.getInt();                            
+            h.getInt();                              
+            short deletedFiles = h.getShort();  
+            
+            for (int i = 0; i < fileCapacity; i++) {
+                long entryOffset = fileTableOffset + (long) i * fileEntrySize;
+                fs.seek(entryOffset);
+                byte[] entry = new byte[FILE_ENTRY_SIZE];
+                fs.readFully(entry);
+
+                if (entry[0] == 0) {
+                    continue;
+                }
+
+                ByteBuffer e = ByteBuffer.wrap(entry).order(ByteOrder.LITTLE_ENDIAN);
+                byte[] nameBytes = new byte[32];
+                e.get(nameBytes);
+                e.getInt();
+                e.getInt();
+                e.get();
+                byte flagDeleted = e.get();
+
+                String entryName = new String(nameBytes, StandardCharsets.UFT_8).split("\0")[0];
+
+                if (!entryName.equals(filename)) {
+                    continue;
+                }
+
+                found = true;
+
+                if (flagDeleted == 1) {
+                    System.out.println("File " + filename + " is already marked as deleted");
+                    break;
+                }
+
+                long flagOffset = entryOffset + 32 + 4 + 4 + 1;
+                fs.seek(flagOffset);
+                fs.write(1);
+
+                field_update(fsName, 12L, "H", fileCount - 1);
+                field_update(fsName, 32L, "H", deletedFiles + 1);
+
+                System.out.println("File " + filename + " marked as deleted");
+                break;
+            }
+
+            if (!found) {
+                System.out.println("File " + filename + "not found in filesystem");
+            }
+        } catch (IOException e) {
+        System.out.println("Error while reading filesystem: " + e.getMessage());
+        }
+    }
+
+    public static void dfrgfs(String fsName) {
+        int deletedEntries = 0;
+        long freedBytes = 0;
+        int activeCount = 0;
+        long[] entryOffsets = new long[FILE_CAPACITY];
+        int[] oldStarts     = new int[FILE_CAPACITY];
+        int[] lengths       = new int[FILE_CAPACITY];
+
+        int fileCapacity;
+        int fileEntrySize;
+        int fileTableOffset;
+        int dataStartOffset;
+        int newOffset;
+        
+        try (RandomAccessFile fs = new RandomAccessFile(fsName, "rwd")) {
+            byte[] header = new byte[HEADER_SIZE];
+            fs.seek(0L);
+            fs.readFully(header);
+            ByteBuffer h = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN);
+
+            h.position(10);
+            h.getShort();                           
+            h.getShort();                        
+            fileCapacity   = h.getShort();
+            fileEntrySize  = h.getShort();
+            h.getShort();                    
+            fileTableOffset = h.getInt();
+            dataStartOffset = h.getInt();
+            h.getInt();                           
+            h.getShort();  
+        
+            for (int i = 0; i < fileCapacity; i++) {
+                long entryOffset = fileTableOffset + (long) i * fileEntrySize;
+                fs.seek(entryOffset);
+                byte[] entry = new byte[FILE_ENTRY_SIZE];
+                fs.readFully(entry);
+
+                if (entry[0] == 0) {
+                    continue;
+                }
+
+                ByteBuffer e = ByteBuffer.wrap(entry).order(ByteOrder.LITTLE_ENDIAN);
+                e.position(32);
+                int start = e.getInt();
+                int length = e.getInt();
+                e.get();
+                byte flagDeleted = e.get();
+
+                entryOffsets[activeCount] = entryOffset;
+                oldStarts[activeCount] = start;
+                lengths[activeCount] = length;
+                activeCount++;
+            }
+
+            newOffset = dataStartOffset;
+            for (int i = 0; i < activeCount; i++) {
+                int oldStart = oldStarts[i];
+                int length = lengths[i];
+
+                byte[] data = new byte[length];
+                fs.seek(oldStart);
+                fs.readFully(data);
+                fs.seek(newOffset);
+                fs.write(data);
+
+                ByteBuffer b = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN);
+                b.putInt(newOffset);
+                fs.seek(entryOffsets[i] + 32);
+                fs.write(b.array());
+
+                int pad = paddingEstimation(length);
+                if (pad > 0) {
+                    fs.write(new byte[pad]);
+                }
+                newOffset += length + pad;
+            }
+
+            for (int i=0; i < fileCapacity; i++) {
+                long entryOffset = fileTableOffset + (long) i * fileEntrySize;
+                fs.seek(entryOffset);
+                byte[] entry = new byte[FILE_ENTRY_SIZE];
+                fs.readFully(entry);
+
+                if (entry[0] != 0) {
+                    ByteBuffer e = ByteBuffer.wrap(entry).order(ByteOrder.LITTLE_ENDIAN);
+                    e.position(32 + 4 + 4 + 1);
+                    byte flagDeleted = e.get();
+                    if (flagDeleted == 1) {
+                        fs.seek(entryOffset);
+                        fs.write(new byte[FILE_ENTRY_SIZE]);
+                    }
+                }
+            }
+
+            fs.setLength(newOffset);
+        } catch (IOException e) {
+            System.out.println("Error while defragmenting filesystem " + e.getMessage());
+            return;
+        }
+
+        field_update(fsName, 28L, "I", newOffset);
+        field_update(fsName, 32L, "H", 0);
+        field_update(fsName, 12L, "H", activeCount);
+
+        System.out.println(deletedEntries + " files defragmented");
+        System.out.println(freedBytes + " bytes freed");
+    }
+
     public static void main(String[] args) {
 
         if (args.length < 2) {
@@ -378,16 +590,34 @@ public static void lsfs(String zvfsName) {
                     getfs(args[1],args[2]);
                 }
                 break;
+            
+            case "gifs":
+                if (args.length != 2) {
+                    System.out.println("Usage: gifs <filesystem>");
+                } else {
+                    gifs(args[1]);
+                }
+                break;
+            
+            case "rmfs":
+                if (args.length != 3) {
+                    System.out.println("Usage: rmfs <filesystem> <file>");
+                } else {
+                    rmfs(args[1], args[2]);
+                }
+                break;
+            
+            case "dfrgfs":
+                if (args.length != 2) {
+                    System.out.println("Usage: dfrgfs <filesystem>");
+                } else {
+                    dfrgfs(args[1]);
+                }
+                break;
+
             default:
                 System.out.println("Unknown command: " + command);
                 break;
         }
     }
 }
-
-
-
-    
-
-
-  
