@@ -9,9 +9,72 @@ The goal of our project was to create a simplified virtual filesystem, stored en
 1. First we check if the provided filesystem exists by using .exists() function. 
 2. We open zvfs_name in the binary read mode "rb".
 3. We extract information which we need: name, length and created which is UNIX timestamp of created time. Moreover we check the deleted flag as we have to make sure we do not print files that were deleted.
-4. We convert the filename to sring using "UTF-8" decoding.
+4. We convert the filename to string using "UTF-8" decoding.
 5. Moreover we convert UNIX timestamp into a readable date. 
 6. Finally, we print the file information. 
+
+Output of the function in Python:
+python zvfs.py lsfs filesystem1.zvfs
+Name: test_file1.txt
+Size: 16 bytes
+Created: 2025-11-16 19:54:05
+Name: test_file1.txt
+Size: 16 bytes
+Created: 2025-11-16 19:54:52
+Name: test_file2.txt
+Size: 27 bytes
+Created: 2025-12-06 11:49:53
+
+Output of the function in Java:
+java zvfs lsfs filesystem1.zvfs
+Name: test_file1.txt
+Size: 16 bytes
+Created: 2025-11-16 19:54:05
+
+Name: test_file1.txt
+Size: 16 bytes
+Created: 2025-11-16 19:54:52
+
+Name: test_file2.txt
+Size: 27 bytes
+Created: 2025-12-06 11:49:53
+
+# catfs 
+1. First we check if the provided filesystem exists by using .exists() function. 
+2. Then we extract a name of the file  with Path().name
+3. We use a flag called "find" to indicate whether a requested file exists in the filesystem.
+4. Then we unpack a file and we check whether an entry is empty or file is deleted. 
+5. We check if the file is the one we want and if yes we change "find" flag to true and we print the file content.
+
+Output of the function in Python:
+python zvfs.py catfs filesystem1.zvfs test_file1.txt
+Hello, world! 
+
+Output of the function in Java:
+java zvfs catfs filesystem1.zvfs test_file1.txt
+Hello, world! 
+
+# getfs 
+1. First we check if the provided filesystem exists by using .exists() function. 
+2. Then we extract a name of the file with Path().name
+3. We use a flag called "find" to indicate whether a requested file to extract exists in the filesystem.
+4. Then we unpack a file and we check whether an entry is empty or file is deleted. 
+5. After we find a file we read it using fields start and length from file entry. 
+6. In the new file we write what we just read.
+7. Finally we print that a file has been extracted. 
+
+Output of the function in Python:
+
+(base) missbo@Missbos-MacBook-Air SoCo_HS25-group_004-a3 % rm test_file1.txt
+(base) missbo@Missbos-MacBook-Air SoCo_HS25-group_004-a3 % python zvfs.py getfs filesystem1.zvfs test_file1.txt
+File 'test_file1.txt' has been extracted.
+
+Output of the function in Java: 
+(base) missbo@Missbos-MacBook-Air SoCo_HS25-group_004-a3 % javac zvfs.java
+(base) missbo@Missbos-MacBook-Air SoCo_HS25-group_004-a3 % rm test_file1.txt
+(base) missbo@Missbos-MacBook-Air SoCo_HS25-group_004-a3 % java zvfs getfs fil
+esystem1.zvfs test_file1.txt
+File has been extracted
 
 # rmfs
 1. We open the filesystem using "r+b+ to activate both reading and writing in binary mode. We need this as rmfs must inspect and modify bytes. 
