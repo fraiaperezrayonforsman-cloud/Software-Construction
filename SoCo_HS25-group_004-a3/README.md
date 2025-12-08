@@ -141,6 +141,7 @@ File has been extracted
 7. Finally, we truncate the filesystem to physically free the storage.
 
 # Major Java Challenges
+A particularly challenging part was defining the metadata layout and the sizes of header and file-entry fields. Continuously got BufferOverflowException or newPosition > limit. 
 
 # AI Prompts
 
