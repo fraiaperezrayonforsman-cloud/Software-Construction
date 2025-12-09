@@ -190,12 +190,11 @@ public static void lsfs(String zvfsName) {
                 byte[] nameBytes = new byte[32];
                 b.get(nameBytes);
 
-                int start = b.getInt();
-                int len = b.getInt();
-                byte flags = b.get();     
+             
+                int len = b.getInt();   
                 byte deleted = b.get();   
-                short reserved = b.getShort(); 
-                long created = b.getLong();    
+                long created = b.getLong();
+   
 
                 if (nameBytes[0] == 0 || deleted == 1)
                     continue;
@@ -243,11 +242,8 @@ public static void lsfs(String zvfsName) {
                     b.get(nameBytes);
 
                     int start = b.getInt();
-                    int len = b.getInt();
-                    byte flags = b.get();     
+                    int len = b.getInt();   
                     byte deleted = b.get();   
-                    short reserved = b.getShort(); 
-                    long created = b.getLong();    
 
                     if (nameBytes[0] == 0 || deleted == 1)
                         continue;
@@ -297,11 +293,8 @@ public static void lsfs(String zvfsName) {
                     b.get(nameBytes);
 
                     int start = b.getInt();
-                    int len = b.getInt();
-                    byte flags = b.get();    
+                    int len = b.getInt();   
                     byte deleted = b.get(); 
-                    short reserved = b.getShort(); 
-                    long created = b.getLong();  
 
                     if (nameBytes[0] == 0 || deleted == 1)
                         continue;
