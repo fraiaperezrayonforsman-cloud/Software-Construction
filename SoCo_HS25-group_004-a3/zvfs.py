@@ -309,6 +309,7 @@ def rmfs(zvfs_name, filename):
                 field_update(zvfs_name, 36, 'H', deleted_files + 1) 
                 
                 print(f"File {filename} marked as deleted.")
+                break
     
         if found == False:
             print(f"File {filename} not found in filesystem.")

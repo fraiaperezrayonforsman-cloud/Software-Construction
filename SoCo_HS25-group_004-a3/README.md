@@ -118,7 +118,7 @@ esystem1.zvfs test_file1.txt
 File has been extracted
 
 # rmfs
-1. We open the filesystem using "r+b+ to activate both reading and writing in binary mode. We need this as rmfs must inspect and modify bytes. 
+1. We open the filesystem using "r+b" to activate both reading and writing in binary mode. We need this as rmfs must inspect and modify bytes. 
 2. The header is unpacked with unpack() so we can extract file_count, file_capacity and table offsets. 
 3. We iterate over all file entries and compute each entry's offset. 
 4. Empty entries are skipped by checking whether the first byte is zero.
@@ -126,10 +126,31 @@ File has been extracted
 6. We compare the stored filename to the requested one and mark the match as deleted by changing only the deleted-flag byte.
 7. Finally, header counters are updated to reflect that one file became inactive and one slot is considered as deleted.
 
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py rmfs filesystem2.zvfs test_file1.txt
+File test_file1.txt marked as deleted.
+
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs rmfs filesystem1.zvfs test_file2.txt
+File test_file2.txt marked as deleted
+
 # gifs 
 1. We use os.path.getsize to retrieve the total size of the filesystem
 2. We extract only the relevant header fields.
 3. The number of free entries is calculated by subtracting active and deleted entries from total capacity.
+
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py gifs filesystem1.zvfs
+Filesystem file     : filesystem1.zvfs
+Files present       : 2
+Free entries        : 30
+Deleted files       : 0
+Total size          : 2240 bytes
+
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 javac zvfs.java
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs gifs filesystem1.zvfs
+Filesystem file     : filesystem1.zvfs
+Files present       : 2
+Free entries        : 30
+Deleted files       : 0
+Total size          : 2240 bytes
 
 # dfrgfs
 1. We begin by reading and unpacking the header to obtain offsets. For the defragmentation we must know exactly where the file table starts, where the data region begins and how many entries exist. 
@@ -140,10 +161,133 @@ File has been extracted
 6. After rewriting files, we rescan the table and physically clear all deleted entries.
 7. Finally, we truncate the filesystem to physically free the storage.
 
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py dfrgfs filesystem1.zvfs
+3 files defragmented
+192 bytes freed
+
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs dfrgfs filesystem1.zvfs              
+1 files defragmented
+64 bytes freed
+
+# Showcase whole code in Python
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py mkfs filesystem3.zvfs
+Zest Virtual Filesystem filesystem3.zvfs created correctly
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 echo Hello, world! > test_file3.txt
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 echo The weather is nice today > test_file4.txt
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py addfs filesystem3.zvfs test_file3.txt
+The test_file3.txt was added correctly to filesystem3.zvfs
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py addfs filesystem3.zvfs test_file4.txt
+The test_file4.txt was added correctly to filesystem3.zvfs
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py lsfs filesystem3.zvfs
+Name: test_file3.txt
+Size: 14 bytes
+Created: 2025-12-09 10:56:33
+Name: test_file4.txt
+Size: 26 bytes
+Created: 2025-12-09 10:56:51
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py catfs filesystem3.zvfs test_file3.txt
+Hello, world!
+
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 rm test_file3.txt
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py getfs filesystem3.zvfs test_file3.txt
+File 'test_file3.txt' has been extracted.
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py gifs filesystem3.zvfs
+Filesystem file     : filesystem3.zvfs
+Files present       : 2
+Free entries        : 30
+Deleted files       : 0
+Total size          : 2240 bytes
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py rmfs filesystem3.zvfs test_file3.txt
+File test_file3.txt marked as deleted.
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py gifs filesystem3.zvfs
+Filesystem file     : filesystem3.zvfs
+Files present       : 1
+Free entries        : 30
+Deleted files       : 1
+Total size          : 2240 bytes
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py lsfs filesystem3.zvfs
+Name: test_file4.txt
+Size: 26 bytes
+Created: 2025-12-09 10:56:51
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py dfrgfs filesystem3.zvfs
+1 files defragmented
+64 bytes freed
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py gifs filesystem3.zvfs  
+Filesystem file     : filesystem3.zvfs
+Files present       : 1
+Free entries        : 31
+Deleted files       : 0
+Total size          : 2176 bytes
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 python zvfs.py lsfs filesystem3.zvfs  
+Name: test_file4.txt
+Size: 26 bytes
+Created: 2025-12-09 10:56:51
+
+# Showcase whole code in Java
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs mkfs filesystem4.zvfs
+Zest Virtual Filesystem filesystem4.zvfs created correctly.
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 echo Hello, world! > test_file5.txt
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 echo The weather is nice today > test_file6.txt
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs addfs filesystem4.zvfs test_file5.txt
+Thetest_file5.txtwas added correctly tofilesystem4.zvfs
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs addfs filesystem4.zvfs test_file6.txt
+Thetest_file6.txtwas added correctly tofilesystem4.zvfs
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs lsfs filesystem4.zvfs
+Name: test_file5.txt
+Size: 234881024 bytes
+Created: 4501419-04-07 03:33:48
+
+Name: test_file6.txt
+Size: 436207616 bytes
+Created: 287769698-10-16 19:20:53
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs catfs filesystem4.zvfs test_file5.txt
+Hello, world!
+
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 rm test_file5.txt
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs getfs filesystem4.zvfs test_file
+5.txt
+File has been extracted
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs gifs filesystem4.zvfs
+Filesystem file     : filesystem4.zvfs
+Files present       : 2
+Free entries        : 30
+Deleted files       : 0
+Total size          : 2240 bytes
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs rmfs filesystem4.zvfs test_file5.txt
+File test_file5.txt marked as deleted
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs gifs filesystem4.zvfs          
+Filesystem file     : filesystem4.zvfs
+Files present       : 1
+Free entries        : 31
+Deleted files       : 0
+Total size          : 2240 bytes
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs lsfs filesystem4.zvfs
+Name: test_file6.txt
+Size: 26 bytes
+Created: 2025-12-09 11:23:53
+
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs dfrgfs filesystem4.zvfs
+1 files defragmented
+64 bytes freed
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs gifs filesystem4.zvfs  
+Filesystem file     : filesystem4.zvfs
+Files present       : 1
+Free entries        : 31
+Deleted files       : 0
+Total size          : 2176 bytes
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs lsfs filesystem4.zvfs  
+Name: test_file6.txt
+Size: 0 bytes
+Created: 1970-01-01 01:00:00
+
 # Major Java Challenges
 A particularly challenging part was defining the metadata layout and the sizes of header and file-entry fields. Continuously got BufferOverflowException or newPosition > limit. 
 
 # AI Prompts
+"I'm struggling with Step 9, guide me step by step to help me solve it"
+"My Java Code is not working because of missing syntax, help me complete it"
+"In my Java Code catfs throws a null error, why?"
 
 # Authors
 Natalia Piegat, Julie Truc, Fraia Pérez-Rayón
