@@ -222,7 +222,7 @@ Total size          : 2176 bytes
 Name: test_file4.txt
 Size: 26 bytes
 Created: 2025-12-09 10:56:51
-
+ 
 # Showcase whole code in Java
 ♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs mkfs filesystem4.zvfs
 Zest Virtual Filesystem filesystem4.zvfs created correctly.
