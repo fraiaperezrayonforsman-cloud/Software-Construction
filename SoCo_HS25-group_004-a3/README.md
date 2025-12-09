@@ -284,6 +284,8 @@ Created: 2025-12-09 15:15:18
 A particularly challenging part was defining the metadata layout and the sizes of header and file-entry fields. Continuously got BufferOverflowException or newPosition > limit. 
 
 # AI Prompts
+"Tell me if this code is correct (for mkfs and addfs since we started the assignment before the VFS were introduced in class we wanted to make sure we were on the right track)."
+"I'm getting java.lang.IllegalArgumentException: newPosition > limit: (70 > 64), please tell me where is the mismatch."
 "I'm struggling with Step 9, guide me step by step to help me solve it"
 "My Java Code is not working because of missing syntax, help me complete it"
 "In my Java Code catfs throws a null error, why?"
