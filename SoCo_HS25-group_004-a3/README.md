@@ -266,20 +266,19 @@ Total size          : 2240 bytes
 Name: test_file6.txt
 Size: 26 bytes
 Created: 2025-12-09 11:23:53
-
-♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs dfrgfs filesystem4.zvfs
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs dfrgfs filesystem4.zvfs              
 1 files defragmented
 64 bytes freed
-♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs gifs filesystem4.zvfs  
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs gifs filesystem4.zvfs              
 Filesystem file     : filesystem4.zvfs
 Files present       : 1
 Free entries        : 31
 Deleted files       : 0
 Total size          : 2176 bytes
-♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs lsfs filesystem4.zvfs  
+♥ ~/Desktop/Uni/2. Jahr/Software Construction/hs25-soco-group-004/SoCo_HS25-group_004-a3 java zvfs lsfs filesystem4.zvfs                
 Name: test_file6.txt
-Size: 0 bytes
-Created: 1970-01-01 01:00:00
+Size: 26 bytes
+Created: 2025-12-09 15:15:18
 
 # Major Java Challenges
 A particularly challenging part was defining the metadata layout and the sizes of header and file-entry fields. Continuously got BufferOverflowException or newPosition > limit. 
@@ -288,6 +287,7 @@ A particularly challenging part was defining the metadata layout and the sizes o
 "I'm struggling with Step 9, guide me step by step to help me solve it"
 "My Java Code is not working because of missing syntax, help me complete it"
 "In my Java Code catfs throws a null error, why?"
+"dfrgfs destroys the second file to 0 bytes and the wrong date, please help me find the issue in the java code"
 
 # Authors
 Natalia Piegat, Julie Truc, Fraia Pérez-Rayón

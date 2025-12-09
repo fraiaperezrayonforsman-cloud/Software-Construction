@@ -2,12 +2,9 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-//import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class zvfs {
@@ -444,6 +441,7 @@ public static void lsfs(String zvfsName) {
         int[] lengths = new int[FILE_CAPACITY];
         long[] timestamps = new long[FILE_CAPACITY];
         byte[][] names = new byte[FILE_CAPACITY][];
+        byte[] flags = new byte[FILE_CAPACITY];  
         int activeCount = 0;
         int fileCapacity;
         int fileEntrySize;
@@ -484,7 +482,7 @@ public static void lsfs(String zvfsName) {
 
                 int start = e.getInt();
                 int length = e.getInt();
-                byte flags = e.get();
+                byte flag = e.get();
                 byte deleted = e.get();
                 e.getShort();
                 long created = e.getLong();
@@ -500,6 +498,7 @@ public static void lsfs(String zvfsName) {
                 lengths[activeCount] = length;
                 timestamps[activeCount] = created;
                 names[activeCount] = nameBytes;
+                flags[activeCount] = flag;  
                 activeCount++;
             }
 
@@ -515,15 +514,25 @@ public static void lsfs(String zvfsName) {
                 fs.seek(newOffset);
                 fs.write(data);
 
-                ByteBuffer bb = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN);
-                bb.putInt(newOffset);
+                ByteBuffer entry = ByteBuffer.allocate(FILE_ENTRY_SIZE).order(ByteOrder.LITTLE_ENDIAN);
+                entry.put(names[i]);          
+                entry.putInt(newOffset);     
+                entry.putInt(length);          
+                entry.put(flags[i]);         
+                entry.put((byte) 0);           
+                entry.putShort((short) 0);    
+                entry.putLong(timestamps[i]);  
+                entry.put(new byte[12]);       
 
-                fs.seek(entryOffsets[i] + 32);
-                fs.write(bb.array());
+                entry.flip();
+                fs.seek(entryOffsets[i]);
+                fs.write(entry.array());
 
                 int pad = paddingEstimation(length);
-                if (pad > 0)
+                if (pad > 0) {
+                    fs.seek(newOffset + length);
                     fs.write(new byte[pad]);
+                }
 
                 newOffset += length + pad;
             }
