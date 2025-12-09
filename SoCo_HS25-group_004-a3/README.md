@@ -290,5 +290,5 @@ A particularly challenging part was defining the metadata layout and the sizes o
 "dfrgfs destroys the second file to 0 bytes and the wrong date, please help me find the issue in the java code"
 
 # Authors
-Natalia Piegat, Julie Truc, Fraia Pérez-Rayón
+Natalia Piegat (missbo-cyber is my github account which I have linked in my Visual Studio), Julie Truc, Fraia Pérez-Rayón
 
