@@ -189,14 +189,14 @@ public static void lsfs(String zvfsName) {
 
                 byte[] nameBytes = new byte[32];
                 b.get(nameBytes);
+                int start = b.getInt();               
+                int length = b.getInt();             
+                byte type = b.get();             
+                byte flag = b.get();                  
+                b.getShort();                         
+                long created = b.getLong();   
 
-             
-                int len = b.getInt();   
-                byte deleted = b.get();   
-                long created = b.getLong();
-   
-
-                if (nameBytes[0] == 0 || deleted == 1)
+                if (nameBytes[0] == 0 || flag == 1)
                     continue;
 
                 String name = new String(nameBytes, StandardCharsets.UTF_8).split("\0")[0];
@@ -205,7 +205,7 @@ public static void lsfs(String zvfsName) {
                         .format(new java.util.Date(created * 1000L));
 
                 System.out.println("Name: " + name);
-                System.out.println("Size: " + len + " bytes");
+                System.out.println("Size: " + length + " bytes");
                 System.out.println("Created: " + time);
                 System.out.println();
             }
@@ -241,11 +241,14 @@ public static void lsfs(String zvfsName) {
                     byte[] nameBytes = new byte[32];
                     b.get(nameBytes);
 
-                    int start = b.getInt();
-                    int len = b.getInt();   
-                    byte deleted = b.get();   
+                    int start = b.getInt();      
+                    int len = b.getInt();         
+                    byte type = b.get();          
+                    byte flag = b.get();          
+                    b.getShort();                 
+                    b.getLong();  
 
-                    if (nameBytes[0] == 0 || deleted == 1)
+                    if (nameBytes[0] == 0 || flag == 1)
                         continue;
 
                     String entryName = new String(nameBytes, StandardCharsets.UTF_8).split("\0")[0];
@@ -292,11 +295,14 @@ public static void lsfs(String zvfsName) {
                     byte[] nameBytes = new byte[32];
                     b.get(nameBytes);
 
-                    int start = b.getInt();
-                    int len = b.getInt();   
-                    byte deleted = b.get(); 
+                    int start = b.getInt();     
+                    int len = b.getInt();         
+                    byte type = b.get();       
+                    byte flag = b.get();          
+                    b.getShort();                 
+                    b.getLong();
 
-                    if (nameBytes[0] == 0 || deleted == 1)
+                    if (nameBytes[0] == 0 || flag == 1)
                         continue;
 
                     String entryName = new String(nameBytes, StandardCharsets.UTF_8).split("\0")[0];
